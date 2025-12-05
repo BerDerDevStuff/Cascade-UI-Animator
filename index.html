@@ -18,6 +18,7 @@
         .api-card { border: 1px solid #333; background-color: #1f1f1f; }
         .api-card h3 { color: #0078D4; }
         .changelog-date { color: #aaaaaa; }
+        .roadmap-item { border-left: 4px solid #4ade80; padding-left: 1rem; }
     </style>
 </head>
 <body>
@@ -34,6 +35,7 @@
                 <a href="#api" class="nav-link block p-3 rounded-r-lg" data-target="api">API Reference (AnimationService)</a>
                 <a href="#editor-features" class="nav-link block p-3 rounded-r-lg" data-target="editor-features">Editor Features</a>
                 <a href="#changelog" class="nav-link block p-3 rounded-r-lg" data-target="changelog">Changelog</a>
+                <a href="#roadmap" class="nav-link block p-3 rounded-r-lg" data-target="roadmap">Roadmap</a>
                 <a href="#licensing" class="nav-link block p-3 rounded-r-lg" data-target="licensing">Licensing</a>
             </nav>
 
@@ -228,6 +230,32 @@ AnimationService.SetToStart(MyButton, MyAnimData)</code></pre>
                     <!-- Changelog entries will be injected here by JavaScript -->
                 </div>
             </section>
+
+            <!-- Roadmap Section -->
+            <section id="roadmap" class="content-section hidden">
+                <h2 class="text-4xl font-bold mb-6 text-white">Roadmap & Future Development</h2>
+                <p class="mb-6 text-lg text-gray-400">This plugin will be continuously updated with new features and fixes. Here are some of the planned features:</p>
+                
+                <div class="space-y-6">
+                    <div class="roadmap-item p-4 bg-gray-800 rounded-lg">
+                        <h3 class="text-xl font-semibold text-green-400 mb-1">Animation Events (In Progress)</h3>
+                        <p class="text-gray-300 mb-2">Define custom markers on the timeline (e.g., "Hit Marker" or "Play Sound") that fire a corresponding event in your Lua scripts. This allows you to precisely synchronize game logic with your animations.</p>
+                    </div>
+                    <div class="roadmap-item p-4 bg-gray-800 rounded-lg">
+                        <h3 class="text-xl font-semibold text-white mb-1">Expanded Component Support</h3>
+                        <p class="text-gray-300 mb-2">Full animation support for advanced `UIBase` modifiers and layout components, including:</p>
+                        <ul class="list-disc list-inside ml-4 text-sm text-gray-400">
+                            <li><code>UIGradient</code></li>
+                            <li><code>UIStroke</code></li>
+                            <li><code>UICorner</code></li>
+                        </ul>
+                    </div>
+                    <div class="roadmap-item p-4 bg-gray-800 rounded-lg">
+                        <h3 class="text-xl font-semibold text-white mb-1">New Data Type Support</h3>
+                        <p class="text-gray-300 mb-2">Implementing interpolation logic for complex data types not yet supported by the runtime compositor, such as <code>NumberSequence</code> and <code>ColorSequence</code>.</p>
+                    </div>
+                </div>
+            </section>
             
             <!-- Licensing Section -->
             <section id="licensing" class="content-section hidden">
@@ -250,7 +278,7 @@ AnimationService.SetToStart(MyButton, MyAnimData)</code></pre>
             const mainContent = document.querySelector('main');
             const navLinks = document.querySelectorAll('.nav-link');
             const sections = document.querySelectorAll('.content-section');
-            
+
             const changelogData = [
                 {
                     version: "1.6.0",
@@ -288,7 +316,7 @@ AnimationService.SetToStart(MyButton, MyAnimData)</code></pre>
                     fixed: [
                         "Interpolation Glitch: Fixed a critical bug where values would 'snap' or 'toggle' instead of interpolating smoothly. This was due to non-numeric types being stored.",
                         "Frame 0 Corruption: Fixed a bug where clicking 'Stop' would trigger the Auto-Recorder, overwriting Frame 0 with the object's reset position.",
-                        "Reverse Playback: Fixed logic to allow the timeline cursor to move backwards correctly, enabling smooth reverse animation."
+                        "Reverse Playback: Fixed logic to allow the timeline cursor to move backwards correctly, enabling smooth reverse animation and scrubbing."
                     ]
                 },
                 {
