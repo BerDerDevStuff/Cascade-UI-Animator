@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cascade UI | Animation Plugin Documentation</title>
-    <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -23,10 +22,8 @@
 </head>
 <body>
 
-    <!-- Main App Container -->
     <div id="app" class="flex min-h-screen">
 
-        <!-- Sidebar Navigation -->
         <div class="sidebar w-64 p-4 shadow-lg flex flex-col fixed h-full z-10">
             <h1 class="text-2xl font-bold mb-6 text-white tracking-wider">CASCADE UI</h1>
             
@@ -44,18 +41,15 @@
             </footer>
         </div>
 
-        <!-- Main Content Area -->
         <main class="ml-64 flex-1 p-10">
-            
-            <!-- Overview Section -->
+
             <section id="overview" class="content-section">
                 <h2 class="text-4xl font-bold mb-4 text-white">Cascade UI: The Ultimate UI Animation System</h2>
                 <p class="mb-6 text-lg text-gray-400">Cascade UI is a powerful Roblox Studio plugin built to solve the limitations of traditional UI animation. It provides a real-time WYSIWYG editor and a highly optimized, conflict-free runtime library, the `AnimationService`.</p>
 
                 <h3 class="text-2xl font-semibold mb-3 mt-8">Core Philosophy: Compositor Engine</h3>
                 <p class="mb-4">Unlike standard `TweenService` which locks properties, Cascade's `AnimationService` uses a compositor engine. This allows multiple tracks and animations to influence the same object simultaneously (e.g., a 'Hover' wobble on a 'Slide In' movement) without fighting each other.</p>
-                
-                <!-- IMAGE: trainbtn_anim.gif -->
+ 
                 <img src="trainbtn_anim.gif" alt="Example of a clean button animation created with Cascade UI" class="my-6 rounded-lg max-w-full">
 
                 <div class="code-block">
@@ -64,12 +58,10 @@ local AnimationService = require(game.ReplicatedStorage.CascadeAnimations.Animat
                 </div>
             </section>
 
-            <!-- API Reference Section -->
             <section id="api" class="content-section hidden">
                 <h2 class="text-4xl font-bold mb-6 text-white">API Reference: AnimationService</h2>
                 <p class="mb-8 text-gray-400">The core runtime module is highly optimized for performance and is designed to be required and used directly in your live game environment.</p>
 
-                <!-- API Card: Preprocess -->
                 <div class="api-card p-6 rounded-lg mb-6">
                     <h3 class="text-xl font-semibold mb-2">.Preprocess(Config)</h3>
                     <p class="text-gray-400 mb-4">Converts raw <code>AnimationConfig</code> data (loaded from the editor) into an optimized <code>ProcessedAnimation</code> object ready for immediate playback. This is an **optional but highly recommended** step for performance.</p>
@@ -80,17 +72,15 @@ local AnimationService = require(game.ReplicatedStorage.CascadeAnimations.Animat
                     </ul>
                     <div class="code-block">
                         <pre><code class="language-luau">local MyAnimData = require(game.ReplicatedStorage.CascadeAnimations.MyAnim)
-
--- 1. Preprocess once (optimized for bulk use)
-local ProcessedAnim = AnimationService.Preprocess(MyAnimData)
-
--- 2. Use the optimized data for all subsequent calls
-AnimationService.Play(Button1, ProcessedAnim)
-AnimationService.PlayBatch(TileList, ProcessedAnim, { Stagger = 0.1 })</code></pre>
+                            -- 1. Preprocess once (optimized for bulk use)
+                            local ProcessedAnim = AnimationService.Preprocess(MyAnimData)
+                            
+                            -- 2. Use the optimized data for all subsequent calls
+                            AnimationService.Play(Button1, ProcessedAnim)
+                            AnimationService.PlayBatch(TileList, ProcessedAnim, { Stagger = 0.1 })</code></pre>
                     </div>
                 </div>
 
-                <!-- API Card: Play -->
                 <div class="api-card p-6 rounded-lg mb-6">
                     <h3 class="text-xl font-semibold mb-2">.Play(Instance, ConfigOrProcessed, Options)</h3>
                     <p class="text-gray-400 mb-4">Starts an animation on a single instance. Returns a custom Signal object for completion tracking.</p>
@@ -100,14 +90,13 @@ AnimationService.PlayBatch(TileList, ProcessedAnim, { Stagger = 0.1 })</code></p
                         <li><code>ConfigOrProcessed</code>: The animation data (either raw or pre-processed).</li>
                         <li><code>Options?</code>: Table of <code>PlayOptions</code> to customize playback (see section below).</li>
                     </ul>
-                    <!-- IMAGE: hover_code.png -->
+
                     <p class="text-sm text-gray-400 mb-2 mt-4">Example: Connecting a hover animation with reverse playback:</p>
                     <div class="code-block">
                         <img src="hover_code.png" alt="Luau code example connecting button mouse events to AnimationService.Play and AnimationService.Play with Reverse = true." class="my-2 rounded-lg max-w-full">
                     </div>
                 </div>
 
-                <!-- API Card: Stop -->
                 <div class="api-card p-6 rounded-lg mb-6">
                     <h3 class="text-xl font-semibold mb-2">.Stop(Instance)</h3>
                     <p class="text-gray-400 mb-4">Immediately halts all active Cascade animations running on the given instance.</p>
@@ -120,7 +109,6 @@ AnimationService.StopBatch({Button1, Button2, Button3})</code></pre>
                     </div>
                 </div>
                 
-                <!-- API Card: SetTime -->
                 <div class="api-card p-6 rounded-lg mb-6">
                     <h3 class="text-xl font-semibold mb-2">.SetTime(Instance, ConfigOrProcessed, Time)</h3>
                     <p class="text-gray-400 mb-4">Instantly snaps the animated object to the exact visual state defined at a specific timestamp (in seconds).</p>
@@ -133,7 +121,6 @@ AnimationService.SetToStart(MyButton, MyAnimData)</code></pre>
                     </div>
                 </div>
 
-                <!-- API Card: PlayBatch -->
                 <div class="api-card p-6 rounded-lg mb-6">
                     <h3 class="text-xl font-semibold mb-2">.PlayBatch(Instances, ConfigOrProcessed, Options)</h3>
                     <p class="text-gray-400 mb-4">Plays an animation across a collection of instances. Supports staggering for sequenced effects.</p>
@@ -141,12 +128,10 @@ AnimationService.SetToStart(MyButton, MyAnimData)</code></pre>
                     <ul class="list-disc list-inside ml-4 text-sm text-gray-300 mb-4">
                         <li><code>Stagger</code>: Time in seconds to delay the start of each subsequent animation.</li>
                     </ul>
-                    <!-- IMAGE: axis_isolation_staggered_items.gif -->
                     <p class="text-sm text-gray-400 mb-2 mt-4">Example of staggered UI elements appearing in sequence:</p>
                     <img src="axis_isolation_staggered_items.gif" alt="GIF demonstrating several UI elements appearing in a staggered sequence, useful for complex HUD reveals." class="my-2 rounded-lg max-w-full">
                 </div>
                 
-                <!-- PlayOptions Detail Section -->
                 <h3 class="text-3xl font-bold mb-4 mt-12 text-white">Understanding PlayOptions</h3>
                 <p class="mb-4 text-gray-400">The optional <code>Options</code> table passed to <code>.Play()</code> and <code>.PlayBatch()</code> determines key behaviors for the animation lifecycle.</p>
                 <div class="space-y-4">
@@ -178,11 +163,9 @@ AnimationService.SetToStart(MyButton, MyAnimData)</code></pre>
 
             </section>
 
-            <!-- Editor Features Section -->
             <section id="editor-features" class="content-section hidden">
                 <h2 class="text-4xl font-bold mb-6 text-white">Editor Features & Workflow</h2>
                 
-                <!-- IMAGE: editor_fullview.png -->
                 <img src="editor_fullview.png" alt="Full view of the Cascade UI plugin editor showing the timeline, keyframes for Size, Rotation, and Position, and the toolbar." class="my-6 rounded-lg max-w-full border border-gray-700">
 
                 <div class="space-y-6">
@@ -196,7 +179,6 @@ AnimationService.SetToStart(MyButton, MyAnimData)</code></pre>
                         </li>
                         <li>
                             <strong class="text-blue-300">Multi-Select & Drag:</strong> Select multiple keyframes and move them as a group while preserving their relative timing.
-                            <!-- IMAGE: cut_drag_selection.gif -->
                             <img src="cut_drag_selection.gif" alt="GIF demonstrating multi-keyframe selection via box select and dragging the entire group across the timeline." class="my-2 rounded-lg max-w-sm border border-gray-700">
                         </li>
                     </ul>
@@ -205,17 +187,14 @@ AnimationService.SetToStart(MyButton, MyAnimData)</code></pre>
                     <ul class="list-disc list-inside ml-4 space-y-3 text-gray-300">
                         <li>
                             <strong class="text-blue-300">Relative Mode (∆):</strong> Toggle any track to be relative to the object's current runtime position, allowing easy layering of effects (e.g., a global menu slide + a localized button pulse).
-                            <!-- IMAGE: hover_anim.gif -->
                             <img src="hover_anim.gif" alt="GIF showing smooth, localized hover animations on multiple buttons simultaneously, enabled by Relative Mode." class="my-2 rounded-lg max-w-xs border border-gray-700">
                         </li>
                         <li>
                             <strong class="text-blue-300">Smart Inspector:</strong> Edit keyframe values using complex syntax (e.g., <code>{0.5, 10}</code> for UDim) and the system automatically coerces types, preventing runtime errors.
-                            <!-- IMAGE: SmartInspector.gif -->
                             <img src="SmartInspector.gif" alt="GIF showing a user typing a UDim2 tuple into the inspector and the system parsing it correctly." class="my-2 rounded-lg max-w-full border border-gray-700">
                         </li>
                         <li>
                             <strong class="text-blue-300">Granular Sub-Property Control:</strong> Animate specific parts of complex types, such as animating only <code>Size.X.Scale</code>.
-                            <!-- IMAGE: axis_isolation_staggered_items.gif -->
                             <p class="text-sm text-gray-400 mt-2">Visually separating complex properties allows for fine-tuned staggered effects on individual components.</p>
                             <img src="axis_isolation_staggered_items.gif" alt="GIF showing the result of staggered elements achieved via granular control." class="my-2 rounded-lg max-w-full border border-gray-700">
                         </li>
@@ -223,15 +202,12 @@ AnimationService.SetToStart(MyButton, MyAnimData)</code></pre>
                 </div>
             </section>
 
-            <!-- Changelog Section -->
             <section id="changelog" class="content-section hidden">
                 <h2 class="text-4xl font-bold mb-6 text-white">Changelog</h2>
                 <div id="changelog-content" class="space-y-8">
-                    <!-- Changelog entries will be injected here by JavaScript -->
                 </div>
             </section>
 
-            <!-- Roadmap Section -->
             <section id="roadmap" class="content-section hidden">
                 <h2 class="text-4xl font-bold mb-6 text-white">Roadmap & Future Development</h2>
                 <p class="mb-6 text-lg text-gray-400">This plugin will be continuously updated with new features and fixes. Here are some of the planned features:</p>
@@ -256,19 +232,6 @@ AnimationService.SetToStart(MyButton, MyAnimData)</code></pre>
                     </div>
                 </div>
             </section>
-            
-            <!-- Licensing Section -->
-            <section id="licensing" class="content-section hidden">
-                <h2 class="text-4xl font-bold mb-6 text-white">Documentation Licensing</h2>
-                <p class="mb-4 text-gray-400">The code of the Cascade UI Plugin itself is proprietary. However, this documentation and all text/prose within this repository is released under the highly permissive MIT License.</p>
-
-                <div class="bg-gray-800 p-6 rounded-lg">
-                    <h3 class="text-xl font-semibold mb-2">MIT License</h3>
-                    <p class="text-sm text-gray-300 mt-1">This license allows maximum freedom. You can use, copy, modify, and distribute the documentation for any purpose (including commercial use), provided you retain the original copyright and license notice.</p>
-                    <p class="text-sm text-yellow-300 mt-3 font-semibold">See the <code>LICENSE.md</code> file in the repository for the full text.</p>
-                </div>
-            </section>
-
         </main>
     </div>
 
@@ -349,7 +312,6 @@ AnimationService.SetToStart(MyButton, MyAnimData)</code></pre>
                     changed: [],
                     fixed: []
                 },
-                // Placeholder for older entries
                 {
                     version: "1.3.0",
                     date: "2025-12-02",
@@ -366,9 +328,6 @@ AnimationService.SetToStart(MyButton, MyAnimData)</code></pre>
                 }
             ];
 
-            // --- Functionality ---
-
-            // 1. Render Changelog
             const changelogContainer = document.getElementById('changelog-content');
             changelogData.forEach(entry => {
                 const entryHtml = `
@@ -398,7 +357,6 @@ AnimationService.SetToStart(MyButton, MyAnimData)</code></pre>
                 changelogContainer.innerHTML += entryHtml;
             });
 
-            // 2. Navigation Logic
             const showSection = (targetId) => {
                 sections.forEach(section => {
                     section.classList.add('hidden');
@@ -417,22 +375,19 @@ AnimationService.SetToStart(MyButton, MyAnimData)</code></pre>
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
                     const targetId = e.currentTarget.getAttribute('data-target');
-                    history.pushState(null, '', e.currentTarget.href); // Update URL hash
+                    history.pushState(null, '', e.currentTarget.href); 
                     showSection(targetId);
                 });
             });
 
-            // Handle initial load and deep linking
             const initialHash = window.location.hash.substring(1) || 'overview';
             const initialTarget = initialHash || 'overview';
             showSection(initialTarget);
-            
-            // Check if a navigation link corresponds to the hash and activate it
+
             const activeLink = document.querySelector(`.nav-link[data-target="${initialTarget}"]`);
             if (activeLink) {
                 activeLink.classList.add('active');
             } else {
-                // Default to overview if hash is invalid
                 document.querySelector('.nav-link[data-target="overview"]').classList.add('active');
             }
         });
