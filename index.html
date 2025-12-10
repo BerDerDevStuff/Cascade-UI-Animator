@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cascade UI | Animation Plugin Documentation</title>
+    <title>Cascade UI | Docs</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -13,11 +13,15 @@
         .nav-link:not(.active):hover { background-color: #2a2a2a; }
         .content-section { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .code-block { background-color: #2a2a2a; border: 1px solid #333; padding: 1rem; border-radius: 8px; overflow-x: auto; }
+        .code-block { background-color: #2a2a2a; border: 1px solid #333; padding: 1rem; border-radius: 8px; overflow-x: auto; font-family: 'Fira Code', monospace; font-size: 0.9rem; }
         .api-card { border: 1px solid #333; background-color: #1f1f1f; }
         .api-card h3 { color: #0078D4; }
         .changelog-date { color: #aaaaaa; }
         .roadmap-item { border-left: 4px solid #4ade80; padding-left: 1rem; }
+        .tip-card { border-left: 4px solid #facc15; background-color: #2a2a2a; padding: 1rem; margin-bottom: 1.5rem; }
+        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+        .feature-card { background-color: #1f1f1f; border: 1px solid #333; border-radius: 0.5rem; overflow: hidden; }
+        .feature-img { width: 100%; height: 200px; object-fit: cover; object-position: center; border-bottom: 1px solid #333; }
     </style>
 </head>
 <body>
@@ -29,7 +33,8 @@
             
             <nav class="space-y-2">
                 <a href="#overview" class="nav-link block p-3 rounded-r-lg" data-target="overview">Overview</a>
-                <a href="#api" class="nav-link block p-3 rounded-r-lg" data-target="api">API Reference (AnimationService)</a>
+                <a href="#tips" class="nav-link block p-3 rounded-r-lg" data-target="tips">Tips & Best Practices</a>
+                <a href="#api" class="nav-link block p-3 rounded-r-lg" data-target="api">API Reference</a>
                 <a href="#editor-features" class="nav-link block p-3 rounded-r-lg" data-target="editor-features">Editor Features</a>
                 <a href="#changelog" class="nav-link block p-3 rounded-r-lg" data-target="changelog">Changelog</a>
                 <a href="#roadmap" class="nav-link block p-3 rounded-r-lg" data-target="roadmap">Roadmap</a>
@@ -43,161 +48,253 @@
         <main class="ml-64 flex-1 p-10">
 
             <section id="overview" class="content-section">
-                <h2 class="text-4xl font-bold mb-4 text-white">Cascade UI: The Ultimate UI Animation System</h2>
-                <p class="mb-6 text-lg text-gray-400">Cascade UI is a powerful Roblox Studio plugin built to solve the limitations of traditional UI animation. It provides a real-time WYSIWYG editor and a highly optimized, conflict-free runtime library, the `AnimationService`.</p>
+                <h2 class="text-4xl font-bold mb-4 text-white">The Smart, Conflict-Free Animation Engine</h2>
+                <p class="mb-6 text-lg text-gray-400">Cascade UI isn't just another tween plugin. It's a full-blown layering system designed to handle complex UI states without the headache of property conflicts.</p>
 
-                <h3 class="text-2xl font-semibold mb-3 mt-8">Core Philosophy: Compositor Engine</h3>
-                <p class="mb-4">Unlike standard `TweenService` which locks properties, Cascade's `AnimationService` uses a compositor engine. This allows multiple tracks and animations to influence the same object simultaneously (e.g., a 'Hover' wobble on a 'Slide In' movement) without fighting each other.</p>
+                <h3 class="text-2xl font-semibold mb-3 mt-8">Why use this?</h3>
+                <p class="mb-4 text-gray-400">Standard <code>TweenService</code> is dumb. It fights over properties. If you try to Hover (scale up) and Click (scale down) at the same time, they break.</p>
+                <p class="mb-4 text-gray-400">Cascade's <code>AnimationService</code> is smart. It uses an <strong>Additive Accumulator</strong>. This means you can play a "Hover", a "Click", and a "Damage Shake" all on the same button, at the same time, and they blend perfectly.</p>
  
-                <img src="trainbtn_anim.gif" alt="Example of a clean button animation created with Cascade UI" class="my-6 rounded-lg max-w-full">
+                <div class="mb-6">
+                    <img src="trainbtn_anim.gif" alt="Example of a clean button animation created with Cascade UI showing blended click and hover effects" class="rounded-lg max-w-full border border-gray-700">
+                    <p class="text-sm text-gray-500 mt-2">Example: A button handling a looping glow, a hover scale, and a click punch simultaneously.</p>
+                </div>
 
                 <div class="code-block">
-                    <pre><code class="language-luau">-- Requiring the Animation Service from your game's storage
+                    <pre><code class="language-luau">-- Grab the service and start composing
 local AnimationService = require(game.ReplicatedStorage.CascadeAnimations.AnimationService)</code></pre>
                 </div>
             </section>
 
+            <section id="tips" class="content-section hidden">
+                <h2 class="text-4xl font-bold mb-6 text-white">Tips & Best Practices</h2>
+                <p class="mb-8 text-gray-400">The engine is highly optimized, but efficient usage is key to scaling your UI to thousands of animated objects.</p>
+
+                <div class="tip-card rounded-r-lg">
+                    <h3 class="text-xl font-bold text-white mb-2">⚠ Critical: Memory Identity</h3>
+                    <p class="text-gray-300 mb-4">The engine identifies animations by their <strong>Table Reference</strong>. If you create a new table every time you click a button, the engine thinks it's a brand new animation and allocates new memory. This causes leaks.</p>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-green-400 font-bold mb-2">✅ Good Practice (Module Re-use)</p>
+                            <div class="code-block text-xs">
+<pre><code class="language-luau">-- Defined ONCE at the top
+local HoverAnim = require(ReplicatedStorage.HoverAnim)
+
+-- The engine sees the SAME table every click.
+-- It reuses the existing Track. Zero allocation.
+AnimationService.Play(btn, HoverAnim)</code></pre>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-red-400 font-bold mb-2">❌ Bad Practice (Table Creation)</p>
+                            <div class="code-block text-xs">
+<pre><code class="language-luau">-- Creates a NEW table memory address every click
+AnimationService.Play(btn, { 
+    Length = 1, 
+    Tracks = { ... } 
+})
+-- Result: Memory leak over time.</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tip-card rounded-r-lg border-l-4 border-orange-500">
+                    <h3 class="text-xl font-bold text-white mb-2">⚠ Naming Convention: Unique Siblings</h3>
+                    <p class="text-gray-300 mb-2">The animator uses <strong>Name Paths</strong> (e.g., <code>"Frame/Button/Icon"</code>) to find children. If you have multiple siblings with the same name, the animator won't know which one to animate.</p>
+                    <p class="text-gray-300"><strong>Rule:</strong> Ensure every sibling inside a container has a unique name. This is required for the engine to properly parse paths and animate the object (and its descendants) correctly.</p>
+                    <div class="grid grid-cols-2 gap-4 mt-4">
+                        <div class="p-2 bg-black bg-opacity-30 rounded">
+                            <p class="text-red-400 font-bold text-xs mb-1">❌ Bad Structure</p>
+                            <ul class="text-xs text-gray-400 font-mono">
+                                <li>📂 Menu</li>
+                                <li class="ml-4">📄 Button</li>
+                                <li class="ml-4">📄 Button</li>
+                            </ul>
+                        </div>
+                        <div class="p-2 bg-black bg-opacity-30 rounded">
+                            <p class="text-green-400 font-bold text-xs mb-1">✅ Good Structure</p>
+                            <ul class="text-xs text-gray-400 font-mono">
+                                <li>📂 Menu</li>
+                                <li class="ml-4">📄 PlayButton</li>
+                                <li class="ml-4">📄 SettingsButton</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tip-card rounded-r-lg border-l-4 border-blue-500">
+                    <h3 class="text-xl font-bold text-white mb-2">ℹ Performance: Preprocessing</h3>
+                    <p class="text-gray-300 mb-2">Parsing string paths like <code>"Frame/TextLabel.TextTransparency"</code> is expensive. Don't make the engine do it every time.</p>
+                    <p class="text-gray-300">If you are animating a list of 100+ items, run <code>AnimationService.Preprocess(Config)</code> once, and pass that processed object to <code>PlayBatch</code>.</p>
+                </div>
+            </section>
+
             <section id="api" class="content-section hidden">
-                <h2 class="text-4xl font-bold mb-6 text-white">API Reference: AnimationService</h2>
-                <p class="mb-8 text-gray-400">The core runtime module is highly optimized for performance and is designed to be required and used directly in your live game environment.</p>
+                <h2 class="text-4xl font-bold mb-6 text-white">API Reference</h2>
+                <p class="mb-8 text-gray-400">The <code>AnimationService</code> is your runtime engine. It's designed to be stateless and conflict-free.</p>
 
                 <div class="api-card p-6 rounded-lg mb-6">
-                    <h3 class="text-xl font-semibold mb-2">.Preprocess(Config)</h3>
-                    <p class="text-gray-400 mb-4">Converts raw <code>AnimationConfig</code> data (loaded from the editor) into an optimized <code>ProcessedAnimation</code> object ready for immediate playback. This is an **optional but highly recommended** step for performance.</p>
-                    <p class="text-yellow-300 font-bold text-sm mb-2">Why Preprocess?</p>
-                    <ul class="list-disc list-inside ml-4 text-sm text-gray-300 mb-4">
-                        <li>It sorts keyframes, resolves property paths (e.g., <code>UDim2.X.Scale</code>), and validates the structure.</li>
-                        <li>By running <code>.Preprocess()</code> once, you avoid running these expensive checks repeatedly inside <code>.PlayBatch()</code> or sequential <code>.Play()</code> calls, saving CPU time.</li>
-                    </ul>
+                    <h3 class="text-xl font-semibold mb-2">.Play(Instance, Config, Options)</h3>
+                    <p class="text-gray-400 mb-4">Starts an animation on a single instance. If an animation is already running for this config, it updates it (hijacks it) instead of restarting, allowing for smooth blending.</p>
+                    
+                    <p class="text-sm text-gray-300 mb-2 font-bold">Example: Hover Effect with Reversal</p>
                     <div class="code-block">
-                        <pre><code class="language-luau">local MyAnimData = require(game.ReplicatedStorage.CascadeAnimations.MyAnim)
-                            -- 1. Preprocess once (optimized for bulk use)
-                            local ProcessedAnim = AnimationService.Preprocess(MyAnimData)
-                            
-                            -- 2. Use the optimized data for all subsequent calls
-                            AnimationService.Play(Button1, ProcessedAnim)
-                            AnimationService.PlayBatch(TileList, ProcessedAnim, { Stagger = 0.1 })</code></pre>
+<pre><code class="language-luau">local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local AnimationService = require(ReplicatedStorage.CascadeRuntimeEngine.AnimationService)
+local Hover = require(ReplicatedStorage.CascadeAnimations.Hover)
+
+local button = script.Parent
+
+button.MouseEnter:Connect(function()
+    AnimationService.Play(button, Hover)
+end)
+
+button.MouseLeave:Connect(function()
+    -- Reverses smoothly from current position
+    AnimationService.Play(button, Hover, {Reverse = true})
+end)</code></pre>
                     </div>
                 </div>
 
                 <div class="api-card p-6 rounded-lg mb-6">
-                    <h3 class="text-xl font-semibold mb-2">.Play(Instance, ConfigOrProcessed, Options)</h3>
-                    <p class="text-gray-400 mb-4">Starts an animation on a single instance. Returns a custom Signal object for completion tracking.</p>
-                    <p class="font-bold text-sm mb-2">Arguments:</p>
-                    <ul class="list-disc list-inside ml-4 text-sm text-gray-300 mb-4">
-                        <li><code>Instance</code>: The GuiObject or Model to animate.</li>
-                        <li><code>ConfigOrProcessed</code>: The animation data (either raw or pre-processed).</li>
-                        <li><code>Options?</code>: Table of <code>PlayOptions</code> to customize playback (see section below).</li>
-                    </ul>
-
-                    <p class="text-sm text-gray-400 mb-2 mt-4">Example: Connecting a hover animation with reverse playback:</p>
+                    <h3 class="text-xl font-semibold mb-2">.PlayBatch(Instances, Config, Options)</h3>
+                    <p class="text-gray-400 mb-4">Plays the same animation on a list of objects. Highly optimized for grids and lists.</p>
+                    <p class="text-sm text-gray-300 mb-2 font-bold">Example: Staggered Inventory Reveal</p>
                     <div class="code-block">
-                        <img src="hover_code.png" alt="Luau code example connecting button mouse events to AnimationService.Play and AnimationService.Play with Reverse = true." class="my-2 rounded-lg max-w-full">
+<pre><code class="language-luau">local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local AnimationService = require(ReplicatedStorage.CascadeRuntimeEngine.AnimationService)
+local SlideIn = require(ReplicatedStorage.CascadeAnimations.SlideIn)
+
+local modalWinFrame = script.Parent
+local container = modalWinFrame:WaitForChild("Container")
+local frames = container:GetChildren()
+
+-- Collect frames to animate
+local framesToAnimate = {}
+for _, child in ipairs(frames) do
+    if child:IsA("Frame") then
+        table.insert(framesToAnimate, child) 
+    end
+end
+
+-- Stagger Option: 0.1s delay between each item
+local function moveInFrames()
+    AnimationService.PlayBatch(framesToAnimate, SlideIn, {Stagger = 0.1})
+end
+
+-- Helper to snap them to start position (hidden) before playing
+local function setToStart()
+    AnimationService.SetToStartBatch(framesToAnimate, SlideIn)
+end
+
+modalWinFrame:GetPropertyChangedSignal("Visible"):Connect(function()
+    if modalWinFrame.Visible then
+        setToStart()
+        task.wait(0.1) -- Optional: wait for layout to calculate
+        moveInFrames()
+    end
+end)</code></pre>
                     </div>
                 </div>
 
                 <div class="api-card p-6 rounded-lg mb-6">
                     <h3 class="text-xl font-semibold mb-2">.Stop(Instance)</h3>
-                    <p class="text-gray-400 mb-4">Immediately halts all active Cascade animations running on the given instance.</p>
+                    <p class="text-gray-400 mb-4">Instantly halts all active tracks on the object. Tracks enter a dormant state.</p>
                     <div class="code-block">
-                        <pre><code class="language-luau">-- Stop the animation on MyButton, preserving its current position
-AnimationService.Stop(MyButton)
-
--- Stop animations on multiple objects (also available: .StopBatch({Instances}))
-AnimationService.StopBatch({Button1, Button2, Button3})</code></pre>
-                    </div>
-                </div>
-                
-                <div class="api-card p-6 rounded-lg mb-6">
-                    <h3 class="text-xl font-semibold mb-2">.SetTime(Instance, ConfigOrProcessed, Time)</h3>
-                    <p class="text-gray-400 mb-4">Instantly snaps the animated object to the exact visual state defined at a specific timestamp (in seconds).</p>
-                    <div class="code-block">
-                        <pre><code class="language-luau">-- Snap 'MyButton' 1.5 seconds into the animation
-AnimationService.SetTime(MyButton, MyAnimData, 1.5)
-
--- Snap to start (also available: .SetToStart(Instance, Config))
-AnimationService.SetToStart(MyButton, MyAnimData)</code></pre>
+                        <pre><code class="language-luau">-- Emergency stop
+AnimationService.Stop(MyButton)</code></pre>
                     </div>
                 </div>
 
                 <div class="api-card p-6 rounded-lg mb-6">
-                    <h3 class="text-xl font-semibold mb-2">.PlayBatch(Instances, ConfigOrProcessed, Options)</h3>
-                    <p class="text-gray-400 mb-4">Plays an animation across a collection of instances. Supports staggering for sequenced effects.</p>
-                    <p class="font-bold text-sm mb-2">Key Option:</p>
-                    <ul class="list-disc list-inside ml-4 text-sm text-gray-300 mb-4">
-                        <li><code>Stagger</code>: Time in seconds to delay the start of each subsequent animation.</li>
-                    </ul>
-                    <p class="text-sm text-gray-400 mb-2 mt-4">Example of staggered UI elements appearing in sequence:</p>
-                    <img src="axis_isolation_staggered_items.gif" alt="GIF demonstrating several UI elements appearing in a staggered sequence, useful for complex HUD reveals." class="my-2 rounded-lg max-w-full">
+                    <h3 class="text-xl font-semibold mb-2">.SetTime(Instance, Config, Time)</h3>
+                    <p class="text-gray-400 mb-4">Snaps the object to a specific point in the animation without playing it. Useful for initializing UI state.</p>
+                    <div class="code-block">
+                        <pre><code class="language-luau">-- Force button to look like it does at the end (1.0s)
+AnimationService.SetTime(MyButton, MyAnim, 1.0)</code></pre>
+                    </div>
                 </div>
+
+                <h3 class="text-3xl font-bold mb-4 mt-12 text-white">PlayOptions</h3>
+                <p class="mb-4 text-gray-400">Control how your animation behaves. Pass this table as the 3rd argument to <code>.Play()</code> or <code>.PlayBatch()</code>.</p>
                 
-                <h3 class="text-3xl font-bold mb-4 mt-12 text-white">Understanding PlayOptions</h3>
-                <p class="mb-4 text-gray-400">The optional <code>Options</code> table passed to <code>.Play()</code> and <code>.PlayBatch()</code> determines key behaviors for the animation lifecycle.</p>
                 <div class="space-y-4">
-                    <div class="bg-gray-800 p-4 rounded-lg">
-                        <p class="font-semibold text-white"><code>Loop: boolean | number</code></p>
-                        <p class="text-sm text-gray-300 mt-1">If <code>true</code>, loops infinitely. If a <code>number</code> (e.g., <code>3</code>), loops that many times.</p>
+                    <div class="bg-gray-800 p-4 rounded-lg border-l-4 border-teal-500">
+                        <p class="font-semibold text-white text-lg">Stagger <span class="text-sm font-normal text-gray-400">(number)</span></p>
+                        <p class="text-gray-300 mt-1">Only for <code>PlayBatch</code>. Delays the start of each instance's animation by X seconds relative to the previous one. Creates professional "waterfall" reveals instantly.</p>
                     </div>
-                    <div class="bg-gray-800 p-4 rounded-lg">
-                        <p class="font-semibold text-white"><code>Delay: number</code></p>
-                        <p class="text-sm text-gray-300 mt-1">Initial delay (in seconds) before the animation begins playing.</p>
+
+                    <div class="bg-gray-800 p-4 rounded-lg border-l-4 border-blue-500">
+                        <p class="font-semibold text-white text-lg">Reverse <span class="text-sm font-normal text-gray-400">(boolean)</span></p>
+                        <p class="text-gray-300 mt-1">If <code>true</code>, plays backwards. If the animation is currently playing forward, it reverses smoothly from the current time. Ideal for mouse leave events.</p>
                     </div>
-                    <div class="bg-gray-800 p-4 rounded-lg">
-                        <p class="font-semibold text-white"><code>Stagger: number</code></p>
-                        <p class="text-sm text-gray-300 mt-1">Only applicable to <code>.PlayBatch()</code>. Specifies the delay (in seconds) between the start of each instance's animation.</p>
+
+                    <div class="bg-gray-800 p-4 rounded-lg border-l-4 border-green-500">
+                        <p class="font-semibold text-white text-lg">Loop <span class="text-sm font-normal text-gray-400">(boolean | number)</span></p>
+                        <p class="text-gray-300 mt-1">
+                            <code>true</code> = Infinite loop.<br>
+                            <code>number</code> = Loops exactly X times (e.g., <code>Loop = 3</code> plays 3 times then stops).
+                        </p>
                     </div>
-                    <div class="bg-gray-800 p-4 rounded-lg">
-                        <p class="font-semibold text-white"><code>Reverse: boolean</code></p>
-                        <p class="text-sm text-gray-300 mt-1">If <code>true</code>, the animation plays backward from the end keyframe to the start keyframe.</p>
+
+                    <div class="bg-gray-800 p-4 rounded-lg border-l-4 border-purple-500">
+                        <p class="font-semibold text-white text-lg">Delay <span class="text-sm font-normal text-gray-400">(number)</span></p>
+                        <p class="text-gray-300 mt-1">Waits X seconds before starting. Useful for sequential effects.</p>
                     </div>
-                    <div class="bg-gray-800 p-4 rounded-lg">
-                        <p class="font-semibold text-white"><code>Reset: boolean</code></p>
-                        <p class="text-sm text-gray-300 mt-1">If <code>true</code>, the object's properties will revert to the exact values they held BEFORE <code>.Play()</code> was called when the animation completes or is stopped.</p>
+
+                    <div class="bg-gray-800 p-4 rounded-lg border-l-4 border-red-500">
+                        <p class="font-semibold text-white text-lg">Reset <span class="text-sm font-normal text-gray-400">(boolean)</span></p>
+                        <p class="text-gray-300 mt-1">When the animation finishes (or is stopped), the object reverts to the values it had <strong>before</strong> the animation started. Good for temporary effects like "Damage Flash".</p>
                     </div>
-                    <div class="bg-gray-800 p-4 rounded-lg">
-                        <p class="font-semibold text-white"><code>ResetToStart: boolean</code></p>
-                        <p class="text-sm text-gray-300 mt-1">If <code>true</code>, the object will snap to the values defined at **Frame 0** of the animation data when the animation completes or is stopped.</p>
+
+                    <div class="bg-gray-800 p-4 rounded-lg border-l-4 border-orange-500">
+                        <p class="font-semibold text-white text-lg">ResetToStart <span class="text-sm font-normal text-gray-400">(boolean)</span></p>
+                        <p class="text-gray-300 mt-1">When finished/stopped, snaps the object to <strong>Frame 0</strong> of the animation.</p>
                     </div>
                 </div>
 
             </section>
 
             <section id="editor-features" class="content-section hidden">
-                <h2 class="text-4xl font-bold mb-6 text-white">Editor Features & Workflow</h2>
-                
-                <img src="editor_fullview.png" alt="Full view of the Cascade UI plugin editor showing the timeline, keyframes for Size, Rotation, and Position, and the toolbar." class="my-6 rounded-lg max-w-full border border-gray-700">
+                <h2 class="text-4xl font-bold mb-6 text-white">Editor Features</h2>
+                <p class="mb-8 text-gray-400">A visual guide to the power tools inside Cascade UI.</p>
 
-                <div class="space-y-6">
-                    <h3 class="text-2xl font-semibold text-white">Robust Workflow Management</h3>
-                    <ul class="list-disc list-inside ml-4 space-y-3 text-gray-300">
-                        <li>
-                            <strong class="text-blue-300">Auto-Recorder:</strong> Record keyframes simply by clicking the record button and changing properties in the Roblox Explorer/Properties window.
-                        </li>
-                        <li>
-                            <strong class="text-blue-300">Strict State Separation:</strong> When you start editing an object, the plugin captures its original state. When you **deselect** the object, it is perfectly restored to its pre-animation appearance.
-                        </li>
-                        <li>
-                            <strong class="text-blue-300">Multi-Select & Drag:</strong> Select multiple keyframes and move them as a group while preserving their relative timing.
-                            <img src="cut_drag_selection.gif" alt="GIF demonstrating multi-keyframe selection via box select and dragging the entire group across the timeline." class="my-2 rounded-lg max-w-sm border border-gray-700">
-                        </li>
-                    </ul>
+                <div class="feature-grid">
+                    
+                    <div class="feature-card">
+                        <img src="axis_isolation_staggered_items.gif" alt="Staggered Animation Example" class="feature-img">
+                        <div class="p-4">
+                            <h3 class="text-xl font-bold text-white mb-2">Axis Isolation & Stagger</h3>
+                            <p class="text-gray-400 text-sm">Most editors lock the whole <code>Size</code> property. Cascade lets you animate <code>Size.X</code> independently of <code>Size.Y</code>. Combined with the <strong>Stagger</strong> runtime feature (shown here), you can create complex, fluid reveals.</p>
+                        </div>
+                    </div>
 
-                    <h3 class="text-2xl font-semibold text-white pt-4">Optimization and Control</h3>
-                    <ul class="list-disc list-inside ml-4 space-y-3 text-gray-300">
-                        <li>
-                            <strong class="text-blue-300">Relative Mode (∆):</strong> Toggle any track to be relative to the object's current runtime position, allowing easy layering of effects (e.g., a global menu slide + a localized button pulse).
-                            <img src="hover_anim.gif" alt="GIF showing smooth, localized hover animations on multiple buttons simultaneously, enabled by Relative Mode." class="my-2 rounded-lg max-w-xs border border-gray-700">
-                        </li>
-                        <li>
-                            <strong class="text-blue-300">Smart Inspector:</strong> Edit keyframe values using complex syntax (e.g., <code>{0.5, 10}</code> for UDim) and the system automatically coerces types, preventing runtime errors.
-                            <img src="SmartInspector.gif" alt="GIF showing a user typing a UDim2 tuple into the inspector and the system parsing it correctly." class="my-2 rounded-lg max-w-full border border-gray-700">
-                        </li>
-                        <li>
-                            <strong class="text-blue-300">Granular Sub-Property Control:</strong> Animate specific parts of complex types, such as animating only <code>Size.X.Scale</code>.
-                            <p class="text-sm text-gray-400 mt-2">Visually separating complex properties allows for fine-tuned staggered effects on individual components.</p>
-                            <img src="axis_isolation_staggered_items.gif" alt="GIF showing the result of staggered elements achieved via granular control." class="my-2 rounded-lg max-w-full border border-gray-700">
-                        </li>
-                    </ul>
+                    <div class="feature-card">
+                        <img src="SmartInspector.gif" alt="Smart Inspector Input" class="feature-img">
+                        <div class="p-4">
+                            <h3 class="text-xl font-bold text-white mb-2">Smart Inspector</h3>
+                            <p class="text-gray-400 text-sm">Don't fight with input fields. The inspector accepts loose syntax like <code>{0.5, 10}</code> for UDim and automatically formats it to Roblox standards.</p>
+                        </div>
+                    </div>
+
+                    <div class="feature-card">
+                        <img src="cut_drag_selection.gif" alt="Multi-Select and Drag" class="feature-img">
+                        <div class="p-4">
+                            <h3 class="text-xl font-bold text-white mb-2">Multi-Select & Drag</h3>
+                            <p class="text-gray-400 text-sm">Box-select multiple keyframes across different tracks and drag them as a group. Retiming complex animations takes seconds, not minutes.</p>
+                        </div>
+                    </div>
+
+                    <div class="feature-card">
+                        <img src="hover_anim.gif" alt="Relative Mode Example" class="feature-img">
+                        <div class="p-4">
+                            <h3 class="text-xl font-bold text-white mb-2">Relative Mode (∆)</h3>
+                            <p class="text-gray-400 text-sm">The killer feature. Define animations as "offsets" (e.g., +10px size) rather than absolute values. This lets you layer hover effects on top of any layout without breaking it.</p>
+                        </div>
+                    </div>
+
                 </div>
             </section>
 
@@ -208,26 +305,21 @@ AnimationService.SetToStart(MyButton, MyAnimData)</code></pre>
             </section>
 
             <section id="roadmap" class="content-section hidden">
-                <h2 class="text-4xl font-bold mb-6 text-white">Roadmap & Future Development</h2>
-                <p class="mb-6 text-lg text-gray-400">This plugin will be continuously updated with new features and fixes. Here are some of the planned features:</p>
+                <h2 class="text-4xl font-bold mb-6 text-white">Roadmap</h2>
                 
                 <div class="space-y-6">
                     <div class="roadmap-item p-4 bg-gray-800 rounded-lg">
                         <h3 class="text-xl font-semibold text-green-400 mb-1">Animation Events (In Progress)</h3>
-                        <p class="text-gray-300 mb-2">Define custom markers on the timeline (e.g., "Hit Marker" or "Play Sound") that fire a corresponding event in your Lua scripts. This allows you to precisely synchronize game logic with your animations.</p>
+                        <p class="text-gray-300 mb-2">Fire code from timeline markers. Sync sounds and logic perfectly.</p>
                     </div>
                     <div class="roadmap-item p-4 bg-gray-800 rounded-lg">
                         <h3 class="text-xl font-semibold text-white mb-1">Expanded Component Support</h3>
-                        <p class="text-gray-300 mb-2">Full animation support for advanced `UIBase` modifiers and layout components, including:</p>
+                        <p class="text-gray-300 mb-2">Full support for advanced UI modifiers:</p>
                         <ul class="list-disc list-inside ml-4 text-sm text-gray-400">
-                            <li><code>UIGradient</code></li>
-                            <li><code>UIStroke</code></li>
-                            <li><code>UICorner</code></li>
+                            <li><code>UIGradient</code> </li>
+                            <li><code>UIStroke</code> </li>
+                            <li><code>UICorner</code> </li>
                         </ul>
-                    </div>
-                    <div class="roadmap-item p-4 bg-gray-800 rounded-lg">
-                        <h3 class="text-xl font-semibold text-white mb-1">New Data Type Support</h3>
-                        <p class="text-gray-300 mb-2">Implementing interpolation logic for complex data types not yet supported by the runtime compositor, such as <code>NumberSequence</code> and <code>ColorSequence</code>.</p>
                     </div>
                 </div>
             </section>
@@ -242,18 +334,35 @@ AnimationService.SetToStart(MyButton, MyAnimData)</code></pre>
             const sections = document.querySelectorAll('.content-section');
 
             const changelogData = [
-
+                {
+                    version: "1.7.0",
+                    date: "2025-12-10",
+                    added: [
+                        "Persistent Animators: Completely replaced the 'Fire-and-Forget' system with persistent Animator objects. Tracks are now reused intelligently.",
+                        "Global Accumulator: Implemented a global render buffer. Multiple animations (Click + Hover) now blend additively without fighting.",
+                        "Active Lifecycle Management: The engine now hooks into Instance.Destroying to instantly free memory, preventing 'Zombie' iteration lag."
+                    ],
+                    changed: [
+                        "Performance: Optimized high-volume animation handling to remain stable under heavy loads.",
+                        "Reversing: Playing an animation in reverse now hijacks the active track, preserving the exact visual state for smooth transitions.",
+                        "Math: Removed closure generation in the Evaluator to significantly reduce Garbage Collection pressure."
+                    ],
+                    fixed: [
+                        "Race Conditions: Fixed the 'Split Brain' issue where two animations modifying the same object would flicker or override each other based on random iteration order.",
+                        "Memory Leaks: Fixed issue where weak tables were holding strong references to values, preventing garbage collection."
+                    ]
+                },
                 {
                     version: "1.6.1",
                     date: "2025-12-07",
                     added: [
-                        "Boolean Logic: Added support for partial boolean inputs. You can now type 't', 'tr', 'f', or 'fal' to quickly set true/false values."
+                        "Boolean Logic: Added support for partial boolean inputs (type 't' for true)."
                     ],
                     changed: [
-                        "Inspector Color3: Switched Color3 display format from 0-1 floats to 0-255 integers (RGB) to match the native Properties window.",
+                        "Inspector Color3: Switched display to 0-255 RGB format.",
                     ],
                     fixed: [
-                        "Inspector Inputs: Fixed an issue where boolean properties could not be set manually in the Inspector."
+                        "Inspector Inputs: Fixed boolean property editing."
                     ]
                 },
                 {
