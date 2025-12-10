@@ -19,9 +19,28 @@
         .changelog-date { color: #aaaaaa; }
         .roadmap-item { border-left: 4px solid #4ade80; padding-left: 1rem; }
         .tip-card { border-left: 4px solid #facc15; background-color: #2a2a2a; padding: 1rem; margin-bottom: 1.5rem; }
-        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
-        .feature-card { background-color: #1f1f1f; border: 1px solid #333; border-radius: 0.5rem; overflow: hidden; }
-        .feature-img { width: 100%; height: 200px; object-fit: cover; object-position: center; border-bottom: 1px solid #333; }
+
+        .feature-grid { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 2rem; 
+        }
+        .feature-card { 
+            background-color: #1f1f1f; 
+            border: 1px solid #333; 
+            border-radius: 0.5rem; 
+            overflow: hidden; 
+            width: 100%; 
+        }
+        .feature-img { 
+            width: 100%; 
+            height: auto; 
+            max-height: 450px; 
+            object-fit: contain; 
+            object-position: center; 
+            border-bottom: 1px solid #333; 
+            margin: 0 auto; 
+        }
     </style>
 </head>
 <body>
@@ -368,7 +387,6 @@ AnimationService.SetTime(MyButton, MyAnim, 1.0)</code></pre>
                 {
                     version: "1.6.0",
                     date: "2025-12-05",
-                    added: [],
                     changed: [
                         "Architectural Overhaul: Rewrote the core AnimationService runtime engine for massive performance gains.",
                         "Centralized Loop: Switched from one Heartbeat connection per object to a single, global connection for all active animations, drastically reducing CPU overhead.",
