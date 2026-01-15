@@ -358,7 +358,6 @@ AnimationService.SetTime(MyButton, MyAnim, 1.0)</code></pre>
                 </div>
             </section>
 
-            // roadmap section
             <section id="roadmap" class="content-section hidden">
                 <h2 class="text-4xl font-bold mb-6 text-white">Roadmap</h2>
                 
@@ -366,16 +365,6 @@ AnimationService.SetTime(MyButton, MyAnim, 1.0)</code></pre>
                     <div class="roadmap-item p-4 bg-gray-800 rounded-lg">
                         <h3 class="text-xl font-semibold text-green-400 mb-1">Animation Events (In Progress)</h3>
                         <p class="text-gray-300 mb-2">Fire code from timeline markers. Sync sounds and logic perfectly.</p>
-                    </div>
-                    <div class="roadmap-item p-4 bg-gray-800 rounded-lg">
-                        <h3 class="text-xl font-semibold text-white mb-1">Expanded Component Support</h3>
-                        <p class="text-gray-300 mb-2">Full support for advanced UI modifiers:</p>
-                        <ul class="list-disc list-inside ml-4 text-sm text-gray-400">
-                            <li><code>UIGradient</code> </li>
-                            <li><code>UIStroke</code> </li>
-                            <li><code>UICorner</code> </li>
-                            <li><code>UIScale</code> </li>
-                        </ul>
                     </div>
                     <div class="roadmap-item p-4 bg-gray-800 rounded-lg">
                         <h3 class="text-xl font-semibold text-green-400 mb-1">Editor Polish (In Progress)</h3>
@@ -405,6 +394,18 @@ AnimationService.SetTime(MyButton, MyAnim, 1.0)</code></pre>
 
             const changelogData = [
 
+                {
+                    version: "1.7.3",
+                    date: "2026-01-15",
+                    added: [ 
+                        "Keybinds: Added keyboard shortcuts to improve workflow efficiency: Play/Stop (Space), Step Forward (K or Right), Step Backward (J or Left), Toggle Record (R), Restore Initial State (G), Add Keyframe (0, +, or Keypad +), Go to Start (H), and Go to End (L).", 
+                        "Expanded Support for UIComponents: UIGradient, UIScale, and UIPadding have been added as animatable components. Additionally, support for UIStroke has been expanded to include more properties."
+                    ],
+                    fixed: [ 
+                        "Undo Logic: Resolved an issue where the undo action would incorrectly remove multiple history states; it now correctly reverts only the last added action."
+                    ],
+                    
+                },
                 {
                     version: "1.7.2",
                     date: "2025-01-03",
