@@ -68,10 +68,10 @@
 
             <section id="overview" class="content-section">
                 <h2 class="text-4xl font-bold mb-4 text-white">The One-Stop solution for UI Animations</h2>
-                <p class="mb-6 text-lg text-gray-400">Cascade UI Animator v2 utilizes a <strong>Dual-Paradigm Architecture</strong>. It offers a high-level "Fire-and-Forget" service for simplicity, and a low-level "Track-Based" system for object-oriented control.</p>
+                <p class="mb-6 text-lg text-gray-400">Cascade UI Animator utilizes a <strong>Dual-Paradigm Architecture</strong>. It offers a high-level "Fire-and-Forget" service for simplicity, and a low-level "Track-Based" system for object-oriented control.</p>
 
                 <h3 class="text-2xl font-semibold mb-3 mt-8">Why use this?</h3>
-                <p class="mb-4 text-gray-400">Standard <code>TweenService</code> fights over properties. Cascade's v2 engine uses a <strong>Global Property Buffer</strong>. This means you can Play a "Hover", a "Click", and a "Damage Shake" all on the same button, at the same time, and they blend perfectly without flickering.</p>
+                <p class="mb-4 text-gray-400">Standard <code>TweenService</code> fights over properties. Cascade's engine uses a <strong>Global Property Buffer</strong>. This means you can Play a "Hover", a "Click", and a "Damage Shake" all on the same button, at the same time, and they blend perfectly without flickering.</p>
  
                 <div class="mb-6">
                     <img src="trainbtn_anim.gif" alt="Example of a clean button animation created with Cascade UI Animator showing blended click and hover effects" class="rounded-lg max-w-full border border-gray-700">
@@ -86,7 +86,7 @@ local AnimationService = require(game.ReplicatedStorage.CascadeAnimations.Animat
 
             <section id="tips" class="content-section hidden">
                 <h2 class="text-4xl font-bold mb-6 text-white">Tips & Best Practices</h2>
-                <p class="mb-8 text-gray-400">The v2 engine is optimized, but efficient usage is key to scaling your UI.</p>
+                <p class="mb-8 text-gray-400">The engine is optimized, but efficient usage is key to scaling your UI.</p>
 
                 <div class="tip-card rounded-r-lg">
                     <h3 class="text-xl font-bold text-white mb-2">⚠ Service vs. Track: Choose your Workflow</h3>
@@ -151,7 +151,7 @@ end)</code></pre>
 
                 <div class="api-card p-6 rounded-lg mb-6">
                     <h3 class="text-xl font-semibold mb-2">.CreateTrack(Instance, Config, Options?) -> AnimTrack</h3>
-                    <p class="text-gray-400 mb-4"><strong>New in v2:</strong> Returns an <code>AnimTrack</code> object for precise control. Does not auto-play.</p>
+                    <p class="text-gray-400 mb-4"> Returns an <code>AnimTrack</code> object for precise control. Does not auto-play.</p>
                     <div class="code-block">
 <pre><code class="language-luau">local track = AnimationService.CreateTrack(button, ClickAnim)
 
@@ -164,6 +164,8 @@ task.wait(0.5)
 track:Pause() -- Pause halfway</code></pre>
                     </div>
                 </div>
+
+                
 
                 <div class="api-card p-6 rounded-lg mb-6">
                     <h3 class="text-xl font-semibold mb-2">.Pause(Instance, Config) / .Resume(Instance, Config)</h3>
@@ -257,7 +259,7 @@ track:Pause() -- Pause halfway</code></pre>
                     <div class="feature-card">
                         <div class="p-4">
                             <h3 class="text-xl font-bold text-white mb-2">Non-Destructive Editing</h3>
-                            <p class="text-gray-400 text-sm">Streamline your editing process with industry-standard <strong>Undo, Redo, Copy, Cut, and Paste</strong>. Duplicate keyframes across tracks or reverse mistakes instantly, ensuring a fluid and forgiving creative environment.</p>
+                            <p class="text-gray-400 text-sm">Streamline your editing process with industry-standard <strong>Undo, Copy, Cut, and Paste</strong>. Duplicate keyframes across tracks or reverse mistakes instantly, ensuring a fluid and forgiving creative environment.</p>
                         </div>
                         <img src="clipboard_workflow.gif" alt="Clipboard and Undo" class="feature-img"> 
                     </div>
@@ -331,15 +333,13 @@ track:Pause() -- Pause halfway</code></pre>
                     date: "2026-02-05",
                     added: [ 
                         "<b>Dual Paradigm:</b> Introduced <code>CreateTrack</code> and <code>CreateBatchedTrack</code> for Object-Oriented control alongside the standard Service API.",
-                        "<b>Native Signals:</b> Replaced string proxies with custom <code>Signal</code> class. Tracks now have <code>.Completed</code>, <code>.Looped</code>, and <code>.Cancelled</code> events.",
-                        "<b>Control API:</b> Added <code>Pause/Resume</code> support and <code>SetFrame</code> for precise timeline jumping.",
+                        "Tracks have <code>.Completed</code>, <code>.Looped</code>, and <code>.Cancelled</code> events.",
+                        "Added <code>Pause/Resume</code> support and <code>SetFrame</code> for precise timeline jumping.",
                     ],
                     changed: [ 
-                        "<b>Deep Cleanup:</b> <code>ClearInstance</code> now resets ALL properties modified by an animation, not just position/size.",
-                        "<b>Play Return:</b> <code>.Play()</code> now returns a Signal object.",
-                        "<b>Stability:</b> Implemented Global Buffer to prevent property fighting between tracks."
+                        "<code>ClearInstance</code> now resets ALL properties modified by an animation, not just position/size.",
                     ],
-                    removed: ["BindToEvent", "GetRunner", "SetToStart (replaced by SetTime)"]
+                    removed: ["BindToEvent", "GetRunner", "SetToStart", "SetLoop", "Also removed TrackOptions from the Stop functions"]
                 },
                 {
                     version: "1.7.3",
