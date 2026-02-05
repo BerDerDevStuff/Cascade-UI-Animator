@@ -19,7 +19,7 @@
         .changelog-date { color: #aaaaaa; }
         .roadmap-item { border-left: 4px solid #4ade80; padding-left: 1rem; }
         .tip-card { border-left: 4px solid #facc15; background-color: #2a2a2a; padding: 1rem; margin-bottom: 1.5rem; }
-    
+        
         .feature-grid { 
             display: flex; 
             flex-direction: column; 
@@ -60,7 +60,7 @@
             </nav>
 
             <footer class="mt-auto pt-4 border-t border-gray-700 text-xs text-gray-500">
-                &copy; 2025 BerDeryaDev1010
+                &copy; 2026 BerDeryaDev1010
             </footer>
         </div>
 
@@ -68,11 +68,10 @@
 
             <section id="overview" class="content-section">
                 <h2 class="text-4xl font-bold mb-4 text-white">The One-Stop solution for UI Animations</h2>
-                <p class="mb-6 text-lg text-gray-400">Cascade UI Animator isn't just another tween plugin. It's a full-blown layering system designed to handle complex UI states without the headache of property conflicts.</p>
+                <p class="mb-6 text-lg text-gray-400">Cascade UI Animator v2 utilizes a <strong>Dual-Paradigm Architecture</strong>. It offers a high-level "Fire-and-Forget" service for simplicity, and a low-level "Track-Based" system for object-oriented control.</p>
 
                 <h3 class="text-2xl font-semibold mb-3 mt-8">Why use this?</h3>
-                <p class="mb-4 text-gray-400">Standard <code>TweenService</code> is good but is limited. It fights over properties. If you try to Hover (scale up) and Click (scale down) at the same time, they break.</p>
-                <p class="mb-4 text-gray-400">Cascade's <code>AnimationService</code> is smart. It uses an <strong>Additive Accumulator</strong>. This means you can play a "Hover", a "Click", and a "Damage Shake" all on the same button, at the same time, and they blend perfectly.</p>
+                <p class="mb-4 text-gray-400">Standard <code>TweenService</code> fights over properties. Cascade's v2 engine uses a <strong>Global Property Buffer</strong>. This means you can Play a "Hover", a "Click", and a "Damage Shake" all on the same button, at the same time, and they blend perfectly without flickering.</p>
  
                 <div class="mb-6">
                     <img src="trainbtn_anim.gif" alt="Example of a clean button animation created with Cascade UI Animator showing blended click and hover effects" class="rounded-lg max-w-full border border-gray-700">
@@ -87,33 +86,33 @@ local AnimationService = require(game.ReplicatedStorage.CascadeAnimations.Animat
 
             <section id="tips" class="content-section hidden">
                 <h2 class="text-4xl font-bold mb-6 text-white">Tips & Best Practices</h2>
-                <p class="mb-8 text-gray-400">The engine is optimized, but efficient usage is key to scaling your UI to thousands of animated objects.</p>
+                <p class="mb-8 text-gray-400">The v2 engine is optimized, but efficient usage is key to scaling your UI.</p>
 
                 <div class="tip-card rounded-r-lg">
-                    <h3 class="text-xl font-bold text-white mb-2">⚠ Critical: Memory Identity</h3>
-                    <p class="text-gray-300 mb-4">The engine identifies animations by their <strong>Table Reference</strong>. If you create a new table every time you click a button, the engine thinks it's a brand new animation and allocates new memory. This causes leaks.</p>
+                    <h3 class="text-xl font-bold text-white mb-2">⚠ Service vs. Track: Choose your Workflow</h3>
+                    <p class="text-gray-300 mb-4">The new architecture allows two ways of working.</p>
                     
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <p class="text-green-400 font-bold mb-2">✅ Good Practice (Module Re-use)</p>
+                            <p class="text-green-400 font-bold mb-2">⚡ Service Mode (Simple)</p>
+                            <p class="text-xs text-gray-400 mb-2">Best for: Hovers, Clicks, Simple Transitions.</p>
                             <div class="code-block text-xs">
-<pre><code class="language-luau">-- Defined ONCE at the top
-local HoverAnim = require(ReplicatedStorage.HoverAnim)
+<pre><code class="language-luau">-- Fire and forget
+AnimationService.Play(btn, HoverAnim)
 
--- The engine sees the SAME table every click.
--- It reuses the existing Track. Zero allocation.
-AnimationService.Play(btn, HoverAnim)</code></pre>
+-- Pause via Service
+AnimationService.Pause(btn, HoverAnim)</code></pre>
                             </div>
                         </div>
                         <div>
-                            <p class="text-red-400 font-bold mb-2">❌ Bad Practice (Table Creation)</p>
+                            <p class="text-blue-400 font-bold mb-2">🔧 Track Mode (Control)</p>
+                            <p class="text-xs text-gray-400 mb-2">Best for: Cutscenes, Complex HUDs, Syncing.</p>
                             <div class="code-block text-xs">
-<pre><code class="language-luau">-- Creates a NEW table memory address every click
-AnimationService.Play(btn, { 
-    Length = 1, 
-    Tracks = { ... } 
-})
--- Result: Memory leak over time.</code></pre>
+<pre><code class="language-luau">-- Manual Control
+local track = AnimationService.CreateTrack(btn, Anim)
+track:Play()
+track:SetSpeed(0.5)
+track:Scrub(0)</code></pre>
                             </div>
                         </div>
                     </div>
@@ -121,156 +120,94 @@ AnimationService.Play(btn, {
 
                 <div class="tip-card rounded-r-lg border-l-4 border-orange-500">
                     <h3 class="text-xl font-bold text-white mb-2">⚠ Naming Convention: Unique Siblings</h3>
-                    <p class="text-gray-300 mb-2">The animator uses <strong>Name Paths</strong> (e.g., <code>"Frame/Button/Icon"</code>) to find children. If you have multiple siblings with the same name, the animator won't know which one to animate.</p>
-                    <p class="text-gray-300"><strong>Rule:</strong> Ensure every sibling inside a container has a unique name. This is required for the engine to properly parse paths and animate the object (and its descendants) correctly.</p>
-                    <div class="grid grid-cols-2 gap-4 mt-4">
-                        <div class="p-2 bg-black bg-opacity-30 rounded">
-                            <p class="text-red-400 font-bold text-xs mb-1">❌ Bad Structure</p>
-                            <ul class="text-xs text-gray-400 font-mono">
-                                <li>📂 Menu</li>
-                                <li class="ml-4">📄 Button</li>
-                                <li class="ml-4">📄 Button</li>
-                            </ul>
-                        </div>
-                        <div class="p-2 bg-black bg-opacity-30 rounded">
-                            <p class="text-green-400 font-bold text-xs mb-1">✅ Good Structure</p>
-                            <ul class="text-xs text-gray-400 font-mono">
-                                <li>📂 Menu</li>
-                                <li class="ml-4">📄 PlayButton</li>
-                                <li class="ml-4">📄 SettingsButton</li>
-                            </ul>
-                        </div>
-                    </div>
+                    <p class="text-gray-300 mb-2">The animator uses <strong>Name Paths</strong> (e.g., <code>"Frame/Button/Icon"</code>) to find children. Ensure every sibling inside a container has a unique name.</p>
                 </div>
 
                 <div class="tip-card rounded-r-lg border-l-4 border-blue-500">
                     <h3 class="text-xl font-bold text-white mb-2">ℹ Performance: Preprocessing</h3>
-                    <p class="text-gray-300 mb-2">Parsing string paths like <code>"Frame/TextLabel.TextTransparency"</code> is expensive. Don't make the engine do it every time.</p>
                     <p class="text-gray-300">If you are animating a list of 100+ items, run <code>AnimationService.Preprocess(Config)</code> once, and pass that processed object to <code>PlayBatch</code>.</p>
                 </div>
             </section>
 
             <section id="api" class="content-section hidden">
                 <h2 class="text-4xl font-bold mb-6 text-white">API Reference</h2>
-                <p class="mb-8 text-gray-400">The <code>AnimationService</code> is your runtime engine. It's designed to be stateless and conflict-free.</p>
+                <p class="mb-8 text-gray-400">Version 2 introduces the <strong>AnimTrack</strong> class and a unified Service API.</p>
+
+                <h3 class="text-2xl font-bold mb-4 text-white border-b border-gray-700 pb-2">Service API (Standard)</h3>
 
                 <div class="api-card p-6 rounded-lg mb-6">
-                    <h3 class="text-xl font-semibold mb-2">.Play(Instance, Config, Options)</h3>
-                    <p class="text-gray-400 mb-4">Starts an animation on a single instance. If an animation is already running for this config, it updates it (hijacks it) instead of restarting, allowing for smooth blending.</p>
+                    <h3 class="text-xl font-semibold mb-2">.Play(Instance, Config, Options?) -> Signal</h3>
+                    <p class="text-gray-400 mb-4">Starts an animation on a single instance. Returns a custom Signal that fires events.</p>
                     
-                    <p class="text-sm text-gray-300 mb-2 font-bold">Example: Hover Effect with Reversal</p>
+                    <p class="text-sm text-gray-300 mb-2 font-bold">Example: Connection to Signals</p>
                     <div class="code-block">
-<pre><code class="language-luau">local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local AnimationService = require(ReplicatedStorage.CascadeRuntimeEngine.AnimationService)
-local Hover = require(ReplicatedStorage.CascadeAnimations.Hover)
+<pre><code class="language-luau">local signal = AnimationService.Play(button, Hover, { Reset = true })
 
-local button = script.Parent
+signal:Connect(function(status)
+    print("Animation Status:", status) -- "Completed", "Looped", or "Cancelled"
+end)</code></pre>
+                    </div>
+                </div>
 
-button.MouseEnter:Connect(function()
-    AnimationService.Play(button, Hover)
+                <div class="api-card p-6 rounded-lg mb-6">
+                    <h3 class="text-xl font-semibold mb-2">.CreateTrack(Instance, Config, Options?) -> AnimTrack</h3>
+                    <p class="text-gray-400 mb-4"><strong>New in v2:</strong> Returns an <code>AnimTrack</code> object for precise control. Does not auto-play.</p>
+                    <div class="code-block">
+<pre><code class="language-luau">local track = AnimationService.CreateTrack(button, ClickAnim)
+
+track.Completed:Connect(function()
+    print("Track finished!")
 end)
 
-button.MouseLeave:Connect(function()
-    -- Reverses smoothly from current position
-    AnimationService.Play(button, Hover, {Reverse = true})
-end)</code></pre>
+track:Play()
+task.wait(0.5)
+track:Pause() -- Pause halfway</code></pre>
                     </div>
                 </div>
 
                 <div class="api-card p-6 rounded-lg mb-6">
-                    <h3 class="text-xl font-semibold mb-2">.PlayBatch(Instances, Config, Options)</h3>
-                    <p class="text-gray-400 mb-4">Plays the same animation on a list of objects. Highly optimized for grids and lists.</p>
-                    <p class="text-sm text-gray-300 mb-2 font-bold">Example: Staggered Inventory Reveal</p>
-                    <div class="code-block">
-<pre><code class="language-luau">local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local AnimationService = require(ReplicatedStorage.CascadeRuntimeEngine.AnimationService)
-local SlideIn = require(ReplicatedStorage.CascadeAnimations.SlideIn)
-
-local modalWinFrame = script.Parent
-local container = modalWinFrame:WaitForChild("Container")
-local frames = container:GetChildren()
-
--- Collect frames to animate
-local framesToAnimate = {}
-for _, child in ipairs(frames) do
-    if child:IsA("Frame") then
-        table.insert(framesToAnimate, child) 
-    end
-end
-
--- Stagger Option: 0.1s delay between each item
-local function moveInFrames()
-    AnimationService.PlayBatch(framesToAnimate, SlideIn, {Stagger = 0.1})
-end
-
--- Helper to snap them to start position (hidden) before playing
-local function setToStart()
-    AnimationService.SetToStartBatch(framesToAnimate, SlideIn)
-end
-
-modalWinFrame:GetPropertyChangedSignal("Visible"):Connect(function()
-    if modalWinFrame.Visible then
-        setToStart()
-        task.wait(0.1) -- Optional: wait for layout to calculate
-        moveInFrames()
-    end
-end)</code></pre>
-                    </div>
+                    <h3 class="text-xl font-semibold mb-2">.Pause(Instance, Config) / .Resume(Instance, Config)</h3>
+                    <p class="text-gray-400 mb-4"><strong>New in v2:</strong> Pauses or resumes an animation on an object without needing the track object.</p>
                 </div>
 
                 <div class="api-card p-6 rounded-lg mb-6">
-                    <h3 class="text-xl font-semibold mb-2">.Stop(Instance)</h3>
-                    <p class="text-gray-400 mb-4">Instantly halts all active tracks on the object. Tracks enter a dormant state.</p>
-                    <div class="code-block">
-                        <pre><code class="language-luau">-- Emergency stop
-AnimationService.Stop(MyButton)</code></pre>
-                    </div>
+                    <h3 class="text-xl font-semibold mb-2">.ClearInstance(Instance)</h3>
+                    <p class="text-gray-400 mb-4"><strong>Crucial:</strong> Halts all active tracks on the instance and performs a <strong>Deep Reset</strong>. Every property touched by the animation (Size, Color, Rotation, etc.) is reset to its initial cached state.</p>
                 </div>
 
                 <div class="api-card p-6 rounded-lg mb-6">
-                    <h3 class="text-xl font-semibold mb-2">.SetTime(Instance, Config, Time)</h3>
-                    <p class="text-gray-400 mb-4">Snaps the object to a specific point in the animation without playing it. Useful for initializing UI state.</p>
-                    <div class="code-block">
-                        <pre><code class="language-luau">-- Force button to look like it does at the end (1.0s)
-AnimationService.SetTime(MyButton, MyAnim, 1.0)</code></pre>
-                    </div>
+                    <h3 class="text-xl font-semibold mb-2">.SetFrame(Instance, Config, FrameNumber)</h3>
+                    <p class="text-gray-400 mb-4"><strong>New in v2:</strong> Snaps the object to a specific frame based on the Config's FPS settings.</p>
                 </div>
 
-                <h3 class="text-3xl font-bold mb-4 mt-12 text-white">PlayOptions</h3>
-                <p class="mb-4 text-gray-400">Control how your animation behaves. Pass this table as the 3rd argument to <code>.Play()</code> or <code>.PlayBatch()</code>.</p>
-                
+                <div class="api-card p-6 rounded-lg mb-6">
+                    <h3 class="text-xl font-semibold mb-2">.Suspend()</h3>
+                    <p class="text-gray-400 mb-4">Disconnects the service from RunService, globally pausing the engine.</p>
+                </div>
+
+                <h3 class="text-2xl font-bold mb-4 mt-12 text-white border-b border-gray-700 pb-2">Track Object API</h3>
+                <p class="mb-4 text-gray-400">Returned by <code>CreateTrack</code>.</p>
+
                 <div class="space-y-4">
-                    <div class="bg-gray-800 p-4 rounded-lg border-l-4 border-teal-500">
-                        <p class="font-semibold text-white text-lg">Stagger <span class="text-sm font-normal text-gray-400">(number)</span></p>
-                        <p class="text-gray-300 mt-1">Only for <code>PlayBatch</code>. Delays the start of each instance's animation by X seconds relative to the previous one. Creates professional "waterfall" reveals instantly.</p>
+                    <div class="bg-gray-800 p-4 rounded-lg">
+                        <p class="font-semibold text-white">Methods</p>
+                        <ul class="text-gray-300 text-sm list-disc list-inside mt-2">
+                            <li><code>:Play()</code> - Starts playback.</li>
+                            <li><code>:Pause()</code> - Freezes playback at current time.</li>
+                            <li><code>:Stop()</code> - Stops and triggers Cancelled signal.</li>
+                            <li><code>:Scrub(time)</code> - Jumps to specific time.</li>
+                            <li><code>:SetSpeed(number)</code> - Changes playback speed dynamically.</li>
+                            <li><code>:Destroy()</code> - Cleans up track (Service auto-removes it).</li>
+                        </ul>
                     </div>
-
-                    <div class="bg-gray-800 p-4 rounded-lg border-l-4 border-blue-500">
-                        <p class="font-semibold text-white text-lg">Reverse <span class="text-sm font-normal text-gray-400">(boolean)</span></p>
-                        <p class="text-gray-300 mt-1">If <code>true</code>, plays backwards. If the animation is currently playing forward, it reverses smoothly from the current time. Ideal for mouse leave events.</p>
-                    </div>
-
-                    <div class="bg-gray-800 p-4 rounded-lg border-l-4 border-green-500">
-                        <p class="font-semibold text-white text-lg">Loop <span class="text-sm font-normal text-gray-400">(boolean | number)</span></p>
-                        <p class="text-gray-300 mt-1">
-                            <code>true</code> = Infinite loop.<br>
-                            <code>number</code> = Loops exactly X times (e.g., <code>Loop = 3</code> plays 3 times then stops).
-                        </p>
-                    </div>
-
-                    <div class="bg-gray-800 p-4 rounded-lg border-l-4 border-purple-500">
-                        <p class="font-semibold text-white text-lg">Delay <span class="text-sm font-normal text-gray-400">(number)</span></p>
-                        <p class="text-gray-300 mt-1">Waits X seconds before starting. Useful for sequential effects.</p>
-                    </div>
-
-                    <div class="bg-gray-800 p-4 rounded-lg border-l-4 border-red-500">
-                        <p class="font-semibold text-white text-lg">Reset <span class="text-sm font-normal text-gray-400">(boolean)</span></p>
-                        <p class="text-gray-300 mt-1">When the animation finishes (or is stopped), the object reverts to the values it had <strong>before</strong> the animation started. Good for temporary effects like "Damage Flash".</p>
-                    </div>
-
-                    <div class="bg-gray-800 p-4 rounded-lg border-l-4 border-orange-500">
-                        <p class="font-semibold text-white text-lg">ResetToStart <span class="text-sm font-normal text-gray-400">(boolean)</span></p>
-                        <p class="text-gray-300 mt-1">When finished/stopped, snaps the object to <strong>Frame 0</strong> of the animation.</p>
+                    <div class="bg-gray-800 p-4 rounded-lg">
+                        <p class="font-semibold text-white">Events (Native Signals)</p>
+                        <ul class="text-gray-300 text-sm list-disc list-inside mt-2">
+                            <li><code>.Completed</code> - Fires when animation finishes.</li>
+                            <li><code>.Looped</code> - Fires when a loop cycle restarts.</li>
+                            <li><code>.Cancelled</code> - Fires when manually stopped.</li>
+                            <li><code>.MarkerReached</code> - (Experimental) Reserved for future events.</li>
+                        </ul>
                     </div>
                 </div>
 
@@ -389,7 +326,21 @@ AnimationService.SetTime(MyButton, MyAnim, 1.0)</code></pre>
             const sections = document.querySelectorAll('.content-section');
 
             const changelogData = [
-
+                {
+                    version: "2.0.0",
+                    date: "2026-02-05",
+                    added: [ 
+                        "<b>Dual Paradigm:</b> Introduced <code>CreateTrack</code> and <code>CreateBatchedTrack</code> for Object-Oriented control alongside the standard Service API.",
+                        "<b>Native Signals:</b> Replaced string proxies with custom <code>Signal</code> class. Tracks now have <code>.Completed</code>, <code>.Looped</code>, and <code>.Cancelled</code> events.",
+                        "<b>Control API:</b> Added <code>Pause/Resume</code> support and <code>SetFrame</code> for precise timeline jumping.",
+                    ],
+                    changed: [ 
+                        "<b>Deep Cleanup:</b> <code>ClearInstance</code> now resets ALL properties modified by an animation, not just position/size.",
+                        "<b>Play Return:</b> <code>.Play()</code> now returns a Signal object.",
+                        "<b>Stability:</b> Implemented Global Buffer to prevent property fighting between tracks."
+                    ],
+                    removed: ["BindToEvent", "GetRunner", "SetToStart (replaced by SetTime)"]
+                },
                 {
                     version: "1.7.3",
                     date: "2026-01-15",
@@ -565,6 +516,12 @@ AnimationService.SetTime(MyButton, MyAnim, 1.0)</code></pre>
                         <p class="font-semibold text-red-400 mt-4 mb-1">Fixed:</p>
                         <ul class="list-disc list-inside ml-4 text-sm text-gray-300">
                             ${entry.fixed.map(item => `<li>${item}</li>`).join('')}
+                        </ul>` : ''}
+                        
+                        ${entry.removed && entry.removed.length > 0 ? `
+                        <p class="font-semibold text-red-500 mt-4 mb-1">Removed:</p>
+                        <ul class="list-disc list-inside ml-4 text-sm text-gray-300">
+                            ${entry.removed.map(item => `<li>${item}</li>`).join('')}
                         </ul>` : ''}
                     </div>
                 `;
