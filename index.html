@@ -485,6 +485,40 @@ end</code></pre>
                     <div class="method-sig">.Destroy()</div>
                     <p>Suspends the engine, destroys all active tracks, and clears all caches. Full teardown.</p>
                 </div>
+
+                <h2>TrackOptions</h2>
+                <p>The optional <code>options</code> table accepted by <code>Play</code>, <code>PlayBatch</code>, <code>CreateTrack</code>, and <code>CreateBatchedTrack</code>.</p>
+
+                <div class="api-card">
+                    <table class="param-table">
+                        <tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr>
+                        <tr><td>Reset</td><td>boolean</td><td>false</td><td>When the track is cleaned up or removed by <code>ClearInstance</code>, all properties touched by the animation are restored to the values they had before playback started. Use this for effects that should leave no trace.</td></tr>
+                        <tr><td>ResetToStart</td><td>boolean</td><td>false</td><td>When <code>:Stop()</code> is called, the track scrubs to time 0 before stopping. The instance snaps to its frame-0 state rather than freezing at whatever time it was at.</td></tr>
+                        <tr><td>Reverse</td><td>boolean</td><td>false</td><td>Plays the animation backwards (speed is set to <code>-1</code>). The track starts at the end and moves toward frame 0. Ideal for "undo" transitions like mouse-leave after a hover.</td></tr>
+                        <tr><td>Loop</td><td>boolean | number</td><td>config value</td><td>Overrides the loop setting baked into the animation config. Pass <code>true</code> for infinite looping, <code>false</code> to play once, or a number (e.g. <code>3</code>) to loop exactly that many times.</td></tr>
+                        <tr><td>Delay</td><td>number</td><td>0</td><td>Seconds to wait after <code>:Play()</code> before the animation actually begins. The track is in a "waiting" state during the delay &mdash; it won't evaluate or modify properties until the delay expires.</td></tr>
+                        <tr><td>Stagger</td><td>number</td><td>0</td><td><strong>BatchedAnimTrack only.</strong> Delay in seconds between each instance's start time. With 4 instances and <code>Stagger = 0.05</code>, the 4th instance starts 150ms after the 1st. The total duration extends by <code>(count - 1) * stagger</code>.</td></tr>
+                        <tr><td>DeleteOnComplete</td><td>boolean</td><td>false</td><td>Automatically calls <code>:Destroy()</code> on the track when it finishes. Useful for one-shot animations where you don't need the track reference afterwards. Prevents track accumulation.</td></tr>
+                    </table>
+                </div>
+
+<pre><code>-- Common patterns:
+
+-- Hover: forward on enter, reverse on leave
+AnimationService.Play(btn, HoverAnim)
+AnimationService.Play(btn, HoverAnim, { Reverse = true })
+
+-- One-shot notification that cleans itself up
+AnimationService.Play(popup, FadeIn, { DeleteOnComplete = true })
+
+-- Looping idle animation with restore on cleanup
+AnimationService.Play(icon, PulseAnim, { Loop = true, Reset = true })
+
+-- Staggered list reveal
+AnimationService.PlayBatch(items, SlideIn, {
+    Stagger = 0.04,
+    Delay = 0.2,
+})</code></pre>
             </section>
 
             <!-- ==================== ANIMTRACK ==================== -->
