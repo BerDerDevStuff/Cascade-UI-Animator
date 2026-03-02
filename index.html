@@ -860,13 +860,13 @@ print("Track completed")</code></pre>
                 <h2>Timeline Grid</h2>
                 <p>The main workspace. Keyframes appear as diamonds on track rows aligned to the frame grid. You can:</p>
                 <ul class="feature-list">
-                    <li><strong>Double-click</strong> a track row to insert a keyframe at the cursor position</li>
                     <li><strong>Click</strong> a keyframe to select it</li>
                     <li><strong>Right-click</strong> a keyframe to open the keyframe editor</li>
                     <li><strong>Drag</strong> keyframes to retime them</li>
                     <li><strong>Box-select</strong> to select multiple keyframes across tracks</li>
                     <li><strong>Scroll</strong> to move through time, <kbd>Ctrl</kbd>+Scroll to zoom</li>
                     <li><strong>Middle-mouse drag</strong> to pan</li>
+                    <li>Use the <strong>Add Keyframe</strong> keybind (<kbd>0</kbd> or <kbd>+</kbd>) to insert a keyframe at the current frame</li>
                 </ul>
 
                 <h2>Auto-Record</h2>
@@ -877,8 +877,10 @@ print("Track completed")</code></pre>
                 <ul class="feature-list">
                     <li>Edit the exact value with type-aware inputs</li>
                     <li>Change the easing style and direction</li>
-                    <li>Toggle relative mode per track</li>
                 </ul>
+
+                <h2>Relative Mode Toggle</h2>
+                <p>Each track row has a <strong style="color:var(--text-primary)">&Delta;</strong> button. Click it to toggle relative mode for that specific track. When active, the badge turns accent-colored and all keyframes on that track are treated as deltas from the base state.</p>
 
                 <h2>Smart Inspector</h2>
                 <p>The value input fields accept loose syntax. For example, you can type <code>{0.5, 10}</code> for a UDim value and the parser will format it correctly. Color values accept 0-255 RGB.</p>
@@ -1025,8 +1027,15 @@ print("Track completed")</code></pre>
                 </div>
 
                 <div class="tip-box tip-do">
-                    <p><strong>DO: Use Reset = true for hover effects</strong></p>
-                    <p>When using <code>AnimationService.Play()</code> with a relative hover animation, pass <code>{ Reset = true }</code>. When the animation is cleared, the property returns to its pre-animation value.</p>
+                    <p><strong>DO: Reverse the animation on leave</strong></p>
+                    <p>For hover effects, play the animation forward on enter and play it again with <code>{ Reverse = true }</code> on leave. This produces a smooth transition back to the original state instead of a hard snap.</p>
+<pre><code>button.MouseEnter:Connect(function()
+    AnimationService.Play(button, HoverAnim)
+end)
+
+button.MouseLeave:Connect(function()
+    AnimationService.Play(button, HoverAnim, { Reverse = true })
+end)</code></pre>
                 </div>
 
                 <h2>Editor Workflow</h2>
