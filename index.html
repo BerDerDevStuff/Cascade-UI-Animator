@@ -5,563 +5,1076 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cascade UI Animator | Docs</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #121212; color: #E0E0E0; }
-        .sidebar { background-color: #1f1f1f; }
-        .nav-link.active { background-color: #2a2a2a; border-left: 4px solid #0078D4; color: #ffffff; font-weight: 600; }
-        .nav-link:not(.active):hover { background-color: #2a2a2a; }
-        .content-section { animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .code-block { background-color: #2a2a2a; border: 1px solid #333; padding: 1rem; border-radius: 8px; overflow-x: auto; font-family: 'Fira Code', monospace; font-size: 0.9rem; }
-        .api-card { border: 1px solid #333; background-color: #1f1f1f; }
-        .api-card h3 { color: #0078D4; }
-        .changelog-date { color: #aaaaaa; }
-        .roadmap-item { border-left: 4px solid #4ade80; padding-left: 1rem; }
-        .tip-card { border-left: 4px solid #facc15; background-color: #2a2a2a; padding: 1rem; margin-bottom: 1.5rem; }
-        
-        .feature-grid { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 2rem; 
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #1c2129;
+            --bg-card: #1c2129;
+            --border: #30363d;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --text-muted: #6e7681;
+            --accent: #58a6ff;
+            --accent-subtle: rgba(88, 166, 255, 0.1);
+            --green: #3fb950;
+            --green-subtle: rgba(63, 185, 80, 0.1);
+            --orange: #d29922;
+            --orange-subtle: rgba(210, 153, 34, 0.1);
+            --red: #f85149;
+            --red-subtle: rgba(248, 81, 73, 0.1);
+            --purple: #bc8cff;
+            --purple-subtle: rgba(188, 140, 255, 0.1);
         }
-        .feature-card { 
-            background-color: #1f1f1f; 
-            border: 1px solid #333; 
-            border-radius: 0.5rem; 
-            overflow: hidden; 
-            width: 100%; 
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
         }
-        .feature-img { 
-            width: 100%; 
-            height: auto; 
-            max-height: 450px; 
-            object-fit: contain; 
-            object-position: center; 
-            border-top: 1px solid #333;
-            margin: 0 auto; 
+
+        .sidebar {
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            width: 260px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .nav-group-title {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            padding: 1rem 1.25rem 0.4rem;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 0.45rem 1.25rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            text-decoration: none;
+            border-left: 2px solid transparent;
+            transition: all 0.15s;
+        }
+        .nav-link:hover { color: var(--text-primary); background-color: var(--bg-tertiary); }
+        .nav-link.active {
+            color: var(--text-primary);
+            border-left-color: var(--accent);
+            background-color: var(--bg-tertiary);
+            font-weight: 500;
+        }
+
+        main { margin-left: 260px; max-width: 900px; padding: 2.5rem 3rem; }
+
+        .content-section { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+        h1 { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
+        h2 { font-size: 1.5rem; font-weight: 700; margin-top: 2.5rem; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+        h3 { font-size: 1.125rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        p { color: var(--text-secondary); margin-bottom: 0.75rem; }
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85em;
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            padding: 0.15em 0.4em;
+            border-radius: 4px;
+        }
+
+        pre {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+            overflow-x: auto;
+            margin: 0.75rem 0 1.25rem;
+            line-height: 1.5;
+        }
+        pre code {
+            background: none;
+            border: none;
+            padding: 0;
+            font-size: 0.85rem;
+        }
+
+        .api-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .method-sig {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--accent);
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .param-table {
+            width: 100%;
+            font-size: 0.85rem;
+            border-collapse: collapse;
+            margin: 0.75rem 0;
+        }
+        .param-table th {
+            text-align: left;
+            color: var(--text-muted);
+            font-weight: 500;
+            padding: 0.4rem 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .param-table td {
+            padding: 0.4rem 0.75rem;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
+        }
+        .param-table td:first-child {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-primary);
+            white-space: nowrap;
+        }
+        .param-table td:nth-child(2) {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--purple);
+            white-space: nowrap;
+        }
+
+        .tag {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.1rem 0.5rem;
+            border-radius: 9999px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .tag-method { background: var(--accent-subtle); color: var(--accent); }
+        .tag-event  { background: var(--green-subtle);  color: var(--green);  }
+        .tag-prop   { background: var(--purple-subtle); color: var(--purple); }
+
+        .tip-box {
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+        .tip-do    { background: var(--green-subtle);  border-left: 3px solid var(--green);  }
+        .tip-dont  { background: var(--red-subtle);    border-left: 3px solid var(--red);    }
+        .tip-info  { background: var(--accent-subtle); border-left: 3px solid var(--accent); }
+        .tip-warn  { background: var(--orange-subtle); border-left: 3px solid var(--orange); }
+        .tip-box strong { color: var(--text-primary); }
+        .tip-box p { color: var(--text-secondary); margin-bottom: 0.25rem; }
+        .tip-box p:last-child { margin-bottom: 0; }
+
+        .keybind-table {
+            width: 100%;
+            font-size: 0.85rem;
+            border-collapse: collapse;
+            margin: 0.75rem 0 1.5rem;
+        }
+        .keybind-table th {
+            text-align: left;
+            font-weight: 600;
+            padding: 0.6rem 0.75rem;
+            border-bottom: 2px solid var(--border);
+            color: var(--text-primary);
+        }
+        .keybind-table td {
+            padding: 0.5rem 0.75rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+        .keybind-table tr:hover td { background: var(--bg-tertiary); }
+
+        kbd {
+            display: inline-block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 0.1rem 0.45rem;
+            box-shadow: 0 1px 0 var(--border);
+        }
+
+        .hidden { display: none; }
+
+        .section-intro {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        ul.feature-list { list-style: none; padding: 0; margin: 0.5rem 0 1rem; }
+        ul.feature-list li {
+            position: relative;
+            padding: 0.3rem 0 0.3rem 1.25rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        ul.feature-list li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.65rem;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
         }
     </style>
 </head>
 <body>
 
-    <div id="app" class="flex min-h-screen">
+    <div class="flex min-h-screen">
 
-        <div class="sidebar w-64 p-4 shadow-lg flex flex-col fixed h-full z-10">
-            <h1 class="text-2xl font-bold mb-6 text-white tracking-wider">CASCADE UI Animator</h1>
-            
-            <nav class="space-y-2">
-                <a href="#overview" class="nav-link block p-3 rounded-r-lg" data-target="overview">Overview</a>
-                <a href="#tips" class="nav-link block p-3 rounded-r-lg" data-target="tips">Tips & Best Practices</a>
-                <a href="#api" class="nav-link block p-3 rounded-r-lg" data-target="api">API Reference</a>
-                <a href="#editor-features" class="nav-link block p-3 rounded-r-lg" data-target="editor-features">Editor Features</a>
-                <a href="#changelog" class="nav-link block p-3 rounded-r-lg" data-target="changelog">Changelog</a>
-                <a href="#roadmap" class="nav-link block p-3 rounded-r-lg" data-target="roadmap">Roadmap</a>
-            </nav>
+        <nav class="sidebar flex flex-col">
+            <div style="padding: 1.25rem; border-bottom: 1px solid var(--border);">
+                <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); letter-spacing: 0.02em;">CASCADE</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">UI Animator</div>
+            </div>
 
-            <footer class="mt-auto pt-4 border-t border-gray-700 text-xs text-gray-500">
+            <div style="flex: 1; padding: 0.5rem 0; overflow-y: auto;">
+                <div class="nav-group-title">Getting Started</div>
+                <a href="#overview" class="nav-link" data-target="overview">Overview</a>
+
+                <div class="nav-group-title">API Reference</div>
+                <a href="#animationservice" class="nav-link" data-target="animationservice">AnimationService</a>
+                <a href="#animtrack" class="nav-link" data-target="animtrack">AnimTrack</a>
+                <a href="#batchedanimtrack" class="nav-link" data-target="batchedanimtrack">BatchedAnimTrack</a>
+                <a href="#signal" class="nav-link" data-target="signal">Signal</a>
+                <a href="#types" class="nav-link" data-target="types">Types & Config</a>
+
+                <div class="nav-group-title">Editor</div>
+                <a href="#editor-concepts" class="nav-link" data-target="editor-concepts">Core Concepts</a>
+                <a href="#editor-features" class="nav-link" data-target="editor-features">Features</a>
+                <a href="#editor-keybinds" class="nav-link" data-target="editor-keybinds">Keybinds</a>
+
+                <div class="nav-group-title">Guides</div>
+                <a href="#tips" class="nav-link" data-target="tips">Best Practices</a>
+            </div>
+
+            <div style="padding: 1rem 1.25rem; border-top: 1px solid var(--border); font-size: 0.7rem; color: var(--text-muted);">
                 &copy; 2026 BerDeryaDev1010
-            </footer>
-        </div>
+            </div>
+        </nav>
 
-        <main class="ml-64 flex-1 p-10">
+        <main>
 
+            <!-- ==================== OVERVIEW ==================== -->
             <section id="overview" class="content-section">
-                <h2 class="text-4xl font-bold mb-4 text-white">The One-Stop solution for UI Animations</h2>
-                <p class="mb-6 text-lg text-gray-400">Cascade UI Animator utilizes a <strong>Dual-Paradigm Architecture</strong>. It offers a high-level "Fire-and-Forget" service for simplicity, and a low-level "Track-Based" system for object-oriented control.</p>
+                <h1>Cascade UI Animator</h1>
+                <p class="section-intro">A high-performance animation engine and visual editor for Roblox UI. Cascade lets you animate any UI property with keyframes, easing curves, and sub-property control &mdash; then play those animations at runtime with a single function call.</p>
 
-                <h3 class="text-2xl font-semibold mb-3 mt-8">Why use this?</h3>
-                <p class="mb-4 text-gray-400">Standard <code>TweenService</code> fights over properties. Cascade's engine uses a <strong>Global Property Buffer</strong>. This means you can Play a "Hover", a "Click", and a "Damage Shake" all on the same button, at the same time, and they blend perfectly without flickering.</p>
- 
-                <div class="mb-6">
-                    <img src="trainbtn_anim.gif" alt="Example of a clean button animation created with Cascade UI Animator showing blended click and hover effects" class="rounded-lg max-w-full border border-gray-700">
-                    <p class="text-sm text-gray-500 mt-2">Example: A button handling a looping glow, a hover scale, and a click punch simultaneously.</p>
-                </div>
+                <h2>Architecture</h2>
+                <p>Cascade uses a <strong style="color:var(--text-primary)">dual-paradigm</strong> design:</p>
 
-                <div class="code-block">
-                    <pre><code class="language-luau">-- Grab the service and start composing
-local AnimationService = require(game.ReplicatedStorage.CascadeAnimations.AnimationService)</code></pre>
-                </div>
-            </section>
-
-            <section id="tips" class="content-section hidden">
-                <h2 class="text-4xl font-bold mb-6 text-white">Tips & Best Practices</h2>
-                <p class="mb-8 text-gray-400">The engine is optimized, but efficient usage is key to scaling your UI.</p>
-
-                <div class="tip-card rounded-r-lg">
-                    <h3 class="text-xl font-bold text-white mb-2">⚠ Service vs. Track: Choose your Workflow</h3>
-                    <p class="text-gray-300 mb-4">The new architecture allows two ways of working.</p>
-                    
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <p class="text-green-400 font-bold mb-2">⚡ Service Mode (Simple)</p>
-                            <p class="text-xs text-gray-400 mb-2">Best for: Hovers, Clicks, Simple Transitions.</p>
-                            <div class="code-block text-xs">
-<pre><code class="language-luau">-- Fire and forget
-AnimationService.Play(btn, HoverAnim)
-
--- Pause via Service
-AnimationService.Pause(btn, HoverAnim)</code></pre>
-                            </div>
-                        </div>
-                        <div>
-                            <p class="text-blue-400 font-bold mb-2">🔧 Track Mode (Control)</p>
-                            <p class="text-xs text-gray-400 mb-2">Best for: Cutscenes, Complex HUDs, Syncing.</p>
-                            <div class="code-block text-xs">
-<pre><code class="language-luau">-- Manual Control
-local track = AnimationService.CreateTrack(btn, Anim)
-track:Play()
-track:SetSpeed(0.5)
-track:Scrub(0)</code></pre>
-                            </div>
-                        </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0 1.5rem;">
+                    <div class="api-card">
+                        <h3 style="color:var(--green); margin-top:0;">Service Mode</h3>
+                        <p style="font-size:0.85rem;">Fire-and-forget. Call <code>AnimationService.Play()</code> and the engine handles everything. Best for hovers, clicks, simple transitions.</p>
+                    </div>
+                    <div class="api-card">
+                        <h3 style="color:var(--accent); margin-top:0;">Track Mode</h3>
+                        <p style="font-size:0.85rem;">Full manual control. Call <code>AnimationService.CreateTrack()</code> to get an <code>AnimTrack</code> object you can play, pause, scrub, and speed-shift. Best for cutscenes, complex HUDs, synced sequences.</p>
                     </div>
                 </div>
 
-                <div class="tip-card rounded-r-lg border-l-4 border-orange-500">
-                    <h3 class="text-xl font-bold text-white mb-2">⚠ Naming Convention: Unique Siblings</h3>
-                    <p class="text-gray-300 mb-2">The animator uses <strong>Name Paths</strong> (e.g., <code>"Frame/Button/Icon"</code>) to find children. Ensure every sibling inside a container has a unique name.</p>
-                </div>
+                <h2>Quick Start</h2>
+<pre><code>-- Require the service from your saved animation module
+local AnimationService = require(game.ReplicatedStorage.CascadeAnimations.AnimationService)
 
-                <div class="tip-card rounded-r-lg border-l-4 border-blue-500">
-                    <h3 class="text-xl font-bold text-white mb-2">ℹ Performance: Preprocessing</h3>
-                    <p class="text-gray-300">If you are animating a list of 100+ items, run <code>AnimationService.Preprocess(Config)</code> once, and pass that processed object to <code>PlayBatch</code>.</p>
-                </div>
-            </section>
+-- Load an animation config (exported from the editor)
+local HoverAnim = require(game.ReplicatedStorage.CascadeAnimations.MyHoverAnim)
 
-            <section id="api" class="content-section hidden">
-                <h2 class="text-4xl font-bold mb-6 text-white">API Reference</h2>
-                <p class="mb-8 text-gray-400">Version 2 introduces the <strong>AnimTrack</strong> class and a unified Service API.</p>
-
-                <h3 class="text-2xl font-bold mb-4 text-white border-b border-gray-700 pb-2">Service API (Standard)</h3>
-
-                <div class="api-card p-6 rounded-lg mb-6">
-                    <h3 class="text-xl font-semibold mb-2">.Play(Instance, Config, Options?) -> Signal</h3>
-                    <p class="text-gray-400 mb-4">Starts an animation on a single instance. Returns a custom Signal that fires events.</p>
-                    
-                    <p class="text-sm text-gray-300 mb-2 font-bold">Example: Connection to Signals</p>
-                    <div class="code-block">
-<pre><code class="language-luau">local signal = AnimationService.Play(button, Hover, { Reset = true })
-
+-- Service mode: fire and forget
+local signal = AnimationService.Play(button, HoverAnim, { Reset = true })
 signal:Connect(function(status)
-    print("Animation Status:", status) -- "Completed", "Looped", or "Cancelled"
-end)</code></pre>
-                    </div>
-                </div>
-
-                <div class="api-card p-6 rounded-lg mb-6">
-                    <h3 class="text-xl font-semibold mb-2">.CreateTrack(Instance, Config, Options?) -> AnimTrack</h3>
-                    <p class="text-gray-400 mb-4"> Returns an <code>AnimTrack</code> object for precise control. Does not auto-play.</p>
-                    <div class="code-block">
-<pre><code class="language-luau">local track = AnimationService.CreateTrack(button, ClickAnim)
-
-track.Completed:Connect(function()
-    print("Track finished!")
+    print(status) -- "Completed", "Looped", or "Cancelled"
 end)
 
+-- Track mode: manual control
+local track = AnimationService.CreateTrack(button, HoverAnim)
 track:Play()
-task.wait(0.5)
-track:Pause() -- Pause halfway</code></pre>
-                    </div>
-                </div>
+task.wait(0.3)
+track:Pause()
+track:Scrub(0) -- jump to start</code></pre>
 
-                
-
-                <div class="api-card p-6 rounded-lg mb-6">
-                    <h3 class="text-xl font-semibold mb-2">.Pause(Instance, Config) / .Resume(Instance, Config)</h3>
-                    <p class="text-gray-400 mb-4"><strong>New in v2:</strong> Pauses or resumes an animation on an object without needing the track object.</p>
-                </div>
-
-                <div class="api-card p-6 rounded-lg mb-6">
-                    <h3 class="text-xl font-semibold mb-2">.ClearInstance(Instance)</h3>
-                    <p class="text-gray-400 mb-4"><strong>Crucial:</strong> Halts all active tracks on the instance and performs a <strong>Deep Reset</strong>. Every property touched by the animation (Size, Color, Rotation, etc.) is reset to its initial cached state.</p>
-                </div>
-
-                <div class="api-card p-6 rounded-lg mb-6">
-                    <h3 class="text-xl font-semibold mb-2">.SetFrame(Instance, Config, FrameNumber)</h3>
-                    <p class="text-gray-400 mb-4"><strong>New in v2:</strong> Snaps the object to a specific frame based on the Config's FPS settings.</p>
-                </div>
-
-                <div class="api-card p-6 rounded-lg mb-6">
-                    <h3 class="text-xl font-semibold mb-2">.Suspend()</h3>
-                    <p class="text-gray-400 mb-4">Disconnects the service from RunService, globally pausing the engine.</p>
-                </div>
-
-                <h3 class="text-2xl font-bold mb-4 mt-12 text-white border-b border-gray-700 pb-2">Track Object API</h3>
-                <p class="mb-4 text-gray-400">Returned by <code>CreateTrack</code>.</p>
-
-                <div class="space-y-4">
-                    <div class="bg-gray-800 p-4 rounded-lg">
-                        <p class="font-semibold text-white">Methods</p>
-                        <ul class="text-gray-300 text-sm list-disc list-inside mt-2">
-                            <li><code>:Play()</code> - Starts playback.</li>
-                            <li><code>:Pause()</code> - Freezes playback at current time.</li>
-                            <li><code>:Stop()</code> - Stops and triggers Cancelled signal.</li>
-                            <li><code>:Scrub(time)</code> - Jumps to specific time.</li>
-                            <li><code>:SetSpeed(number)</code> - Changes playback speed dynamically.</li>
-                            <li><code>:Destroy()</code> - Cleans up track (Service auto-removes it).</li>
-                        </ul>
-                    </div>
-                    <div class="bg-gray-800 p-4 rounded-lg">
-                        <p class="font-semibold text-white">Events (Native Signals)</p>
-                        <ul class="text-gray-300 text-sm list-disc list-inside mt-2">
-                            <li><code>.Completed</code> - Fires when animation finishes.</li>
-                            <li><code>.Looped</code> - Fires when a loop cycle restarts.</li>
-                            <li><code>.Cancelled</code> - Fires when manually stopped.</li>
-                            <li><code>.MarkerReached</code> - (Experimental) Reserved for future events.</li>
-                        </ul>
-                    </div>
-                </div>
-
+                <h2>How It Works</h2>
+                <p>Under the hood, Cascade runs a single <code>PreRender</code> loop that evaluates all active tracks. Each frame, every track's keyframes are interpolated, and the results are written into a <strong style="color:var(--text-primary)">Global Property Buffer</strong>. This means multiple animations on the same instance (e.g. a hover + a click + a damage shake) blend together without flickering or property fights.</p>
+                <p>The engine caches the <strong style="color:var(--text-primary)">base state</strong> of every property it touches. When an animation ends with <code>Reset = true</code>, the property is restored to its original value. This cache uses weak references, so destroyed instances are garbage-collected automatically.</p>
             </section>
 
+            <!-- ==================== ANIMATIONSERVICE ==================== -->
+            <section id="animationservice" class="content-section hidden">
+                <h1>AnimationService</h1>
+                <p class="section-intro">The top-level module. Manages the global render loop, active tracks, preprocessing, and provides both fire-and-forget and track-based APIs.</p>
+
+<pre><code>local AnimationService = require(path.to.AnimationService)</code></pre>
+
+                <h2>Methods</h2>
+
+                <!-- Play -->
+                <div class="api-card">
+                    <span class="tag tag-method">Method</span>
+                    <div class="method-sig">.Play(instance, config, options?) &rarr; Signal</div>
+                    <p>Plays an animation on a single instance. If a track for the same instance+config already exists, it reuses it (resetting time). Returns a <code>Signal</code> proxy that fires <code>"Completed"</code>, <code>"Looped"</code>, <code>"Cancelled"</code>, or <code>"MarkerReached"</code>.</p>
+                    <table class="param-table">
+                        <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+                        <tr><td>instance</td><td>Instance</td><td>The root GuiObject to animate</td></tr>
+                        <tr><td>config</td><td>AnimationConfig | ProcessedAnimation</td><td>Animation data (raw or preprocessed)</td></tr>
+                        <tr><td>options</td><td>TrackOptions?</td><td>Optional playback flags</td></tr>
+                    </table>
+<pre><code>local signal = AnimationService.Play(button, HoverAnim, {
+    Reset = true,     -- restore properties when done
+    Loop = true,      -- loop forever
+    Reverse = false,  -- play forward
+})
+
+signal:Connect(function(status)
+    if status == "Completed" then
+        print("Done!")
+    end
+end)</code></pre>
+                </div>
+
+                <!-- PlayBatch -->
+                <div class="api-card">
+                    <span class="tag tag-method">Method</span>
+                    <div class="method-sig">.PlayBatch(instances, config, options?) &rarr; Signal</div>
+                    <p>Plays the same animation on multiple instances using a single <code>BatchedAnimTrack</code>. Supports <code>Stagger</code> for cascading delays between items.</p>
+<pre><code>local buttons = { btn1, btn2, btn3, btn4 }
+AnimationService.PlayBatch(buttons, FadeIn, {
+    Stagger = 0.05,  -- 50ms delay between each item
+    Reset = true,
+})</code></pre>
+                </div>
+
+                <!-- CreateTrack -->
+                <div class="api-card">
+                    <span class="tag tag-method">Method</span>
+                    <div class="method-sig">.CreateTrack(instance, config, options?) &rarr; AnimTrack</div>
+                    <p>Creates an <code>AnimTrack</code> for manual control. Does <strong>not</strong> auto-play. You must call <code>:Play()</code> on the returned track.</p>
+<pre><code>local track = AnimationService.CreateTrack(panel, SlideIn)
+track.Completed:Connect(function()
+    print("Slide finished")
+end)
+track:Play()</code></pre>
+                </div>
+
+                <!-- CreateBatchedTrack -->
+                <div class="api-card">
+                    <span class="tag tag-method">Method</span>
+                    <div class="method-sig">.CreateBatchedTrack(instances, config, options?) &rarr; BatchedAnimTrack</div>
+                    <p>Creates a <code>BatchedAnimTrack</code> for manual control over a batch of instances. Does not auto-play.</p>
+<pre><code>local track = AnimationService.CreateBatchedTrack(listItems, RevealAnim, {
+    Stagger = 0.03,
+})
+track:Play()</code></pre>
+                </div>
+
+                <!-- Pause / Resume -->
+                <div class="api-card">
+                    <span class="tag tag-method">Method</span>
+                    <div class="method-sig">.Pause(instance, config)</div>
+                    <p>Pauses a running animation on the given instance without needing the track reference.</p>
+                </div>
+
+                <div class="api-card">
+                    <span class="tag tag-method">Method</span>
+                    <div class="method-sig">.Resume(instance, config)</div>
+                    <p>Resumes a paused animation on the given instance.</p>
+                </div>
+
+                <div class="api-card">
+                    <span class="tag tag-method">Method</span>
+                    <div class="method-sig">.PauseBatch(instances, config) / .ResumeBatch(instances, config)</div>
+                    <p>Batch equivalents of Pause and Resume.</p>
+                </div>
+
+                <!-- SetTime / SetFrame -->
+                <div class="api-card">
+                    <span class="tag tag-method">Method</span>
+                    <div class="method-sig">.SetTime(instance, config, time)</div>
+                    <p>Snaps the instance to the exact state at the given time (in seconds). Creates a track internally if needed, then suspends it. Useful for previewing a specific point in the animation.</p>
+                </div>
+
+                <div class="api-card">
+                    <span class="tag tag-method">Method</span>
+                    <div class="method-sig">.SetFrame(instance, config, frame)</div>
+                    <p>Snaps to a specific frame number. Converts to time using the config's FPS.</p>
+<pre><code>-- Show exactly what frame 10 looks like
+AnimationService.SetFrame(button, ClickAnim, 10)</code></pre>
+                </div>
+
+                <div class="api-card">
+                    <span class="tag tag-method">Method</span>
+                    <div class="method-sig">.SetTimeBatch(instances, config, time) / .SetFrameBatch(instances, config, frame)</div>
+                    <p>Batch equivalents of SetTime and SetFrame.</p>
+                </div>
+
+                <!-- Stop -->
+                <div class="api-card">
+                    <span class="tag tag-method">Method</span>
+                    <div class="method-sig">.Stop(instance)</div>
+                    <p>Stops <strong>all</strong> active tracks on the instance. Fires each track's <code>Cancelled</code> signal.</p>
+                </div>
+
+                <div class="api-card">
+                    <span class="tag tag-method">Method</span>
+                    <div class="method-sig">.StopBatch(instances)</div>
+                    <p>Stops all batched tracks containing any of the given instances.</p>
+                </div>
+
+                <!-- ClearInstance -->
+                <div class="api-card">
+                    <span class="tag tag-method">Method</span>
+                    <div class="method-sig">.ClearInstance(instance)</div>
+                    <p>Stops all tracks on the instance, restores all cached base-state properties (if <code>Reset</code> was enabled), and removes the instance from the base cache. Use this for full cleanup.</p>
+<pre><code>-- Player closed a menu, clean everything up
+AnimationService.ClearInstance(menuFrame)</code></pre>
+                </div>
+
+                <div class="api-card">
+                    <span class="tag tag-method">Method</span>
+                    <div class="method-sig">.ClearInstanceBatch(instances)</div>
+                    <p>Batch equivalent of ClearInstance.</p>
+                </div>
+
+                <!-- Preprocess -->
+                <div class="api-card">
+                    <span class="tag tag-method">Method</span>
+                    <div class="method-sig">.Preprocess(config) &rarr; ProcessedAnimation</div>
+                    <p>Pre-parses an <code>AnimationConfig</code> into an optimized format. Results are cached per config table reference. Calling <code>Play</code> or <code>CreateTrack</code> does this automatically, but for large batches (100+ items), preprocessing once upfront avoids redundant work.</p>
+<pre><code>local processed = AnimationService.Preprocess(ListItemAnim)
+
+-- Now use the processed result for many instances
+for _, item in ipairs(items) do
+    AnimationService.Play(item, processed, { Stagger = 0.02 })
+end</code></pre>
+                </div>
+
+                <!-- Utility -->
+                <div class="api-card">
+                    <span class="tag tag-method">Method</span>
+                    <div class="method-sig">.ClearPreProcessedCache()</div>
+                    <p>Clears the internal preprocessed config cache. Call this if you dynamically modify animation configs at runtime.</p>
+                </div>
+
+                <div class="api-card">
+                    <span class="tag tag-method">Method</span>
+                    <div class="method-sig">.Suspend()</div>
+                    <p>Disconnects the global <code>PreRender</code> connection, pausing the entire engine. Use for menu screens or when animations aren't needed.</p>
+                </div>
+
+                <div class="api-card">
+                    <span class="tag tag-method">Method</span>
+                    <div class="method-sig">.Destroy()</div>
+                    <p>Suspends the engine, destroys all active tracks, and clears all caches. Full teardown.</p>
+                </div>
+            </section>
+
+            <!-- ==================== ANIMTRACK ==================== -->
+            <section id="animtrack" class="content-section hidden">
+                <h1>AnimTrack</h1>
+                <p class="section-intro">Returned by <code>AnimationService.CreateTrack()</code>. Represents a single animation bound to a single instance. Gives you frame-level control over playback.</p>
+
+                <h2>Properties</h2>
+
+                <div class="api-card">
+                    <table class="param-table">
+                        <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+                        <tr><td>Instance</td><td>Instance</td><td>The root instance being animated</td></tr>
+                        <tr><td>State</td><td>"Playing" | "Paused" | "Suspended"</td><td>Current playback state</td></tr>
+                        <tr><td>CurrentTime</td><td>number</td><td>Current playback position in seconds</td></tr>
+                        <tr><td>Speed</td><td>number</td><td>Playback speed multiplier (negative = reverse)</td></tr>
+                        <tr><td>Duration</td><td>number</td><td>Total length of the animation in seconds</td></tr>
+                        <tr><td>AutoDestroy</td><td>boolean</td><td>If true, track self-destructs on completion</td></tr>
+                        <tr><td>IsFinished</td><td>boolean</td><td>True when animation has reached the end</td></tr>
+                        <tr><td>IsDestroyed</td><td>boolean</td><td>True after Destroy() has been called</td></tr>
+                    </table>
+                </div>
+
+                <h2>Methods</h2>
+
+                <div class="api-card">
+                    <span class="tag tag-method">Method</span>
+                    <div class="method-sig">:Play()</div>
+                    <p>Starts or resumes playback from the current time. Respects the <code>Delay</code> option on first play.</p>
+                </div>
+
+                <div class="api-card">
+                    <span class="tag tag-method">Method</span>
+                    <div class="method-sig">:Pause()</div>
+                    <p>Freezes playback at the current time. The track stays active and can be resumed with <code>:Play()</code>.</p>
+                </div>
+
+                <div class="api-card">
+                    <span class="tag tag-method">Method</span>
+                    <div class="method-sig">:Stop()</div>
+                    <p>Stops playback, resets time to 0, and fires the <code>Cancelled</code> signal. If <code>ResetToStart</code> was set, scrubs to frame 0 first. If <code>AutoDestroy</code> is true, the track self-destructs.</p>
+                </div>
+
+                <div class="api-card">
+                    <span class="tag tag-method">Method</span>
+                    <div class="method-sig">:Scrub(time: number)</div>
+                    <p>Jumps to a specific time (clamped to <code>0..Duration</code>). Works while playing, paused, or suspended. While suspended, a scrub triggers a single evaluation pass so the instance updates visually.</p>
+<pre><code>-- Scrub to the halfway point
+track:Scrub(track.Duration / 2)
+
+-- Scrub to a specific frame (at 30 FPS)
+track:Scrub(15 / 30)</code></pre>
+                </div>
+
+                <div class="api-card">
+                    <span class="tag tag-method">Method</span>
+                    <div class="method-sig">:SetSpeed(speed: number)</div>
+                    <p>Changes playback speed. Use <code>-1</code> for reverse, <code>0.5</code> for half speed, <code>2</code> for double speed.</p>
+<pre><code>track:SetSpeed(-1)  -- play in reverse
+track:SetSpeed(0.5) -- slow motion</code></pre>
+                </div>
+
+                <div class="api-card">
+                    <span class="tag tag-method">Method</span>
+                    <div class="method-sig">:SetLoop(loop: boolean | number)</div>
+                    <p>Changes the loop behavior. Pass <code>true</code> for infinite loop, <code>false</code> to stop looping, or a number for a specific loop count.</p>
+                </div>
+
+                <div class="api-card">
+                    <span class="tag tag-method">Method</span>
+                    <div class="method-sig">:Destroy()</div>
+                    <p>Marks the track for removal from the engine. Destroys all signal connections. The engine cleans it up on the next render frame.</p>
+                </div>
+
+                <h2>Events</h2>
+
+                <div class="api-card">
+                    <span class="tag tag-event">Event</span>
+                    <div class="method-sig">.Completed &rarr; Signal</div>
+                    <p>Fires when the animation reaches the end (or the start, if playing in reverse) and has no remaining loops.</p>
+                </div>
+
+                <div class="api-card">
+                    <span class="tag tag-event">Event</span>
+                    <div class="method-sig">.Looped &rarr; Signal</div>
+                    <p>Fires each time the animation wraps around for another loop cycle.</p>
+                </div>
+
+                <div class="api-card">
+                    <span class="tag tag-event">Event</span>
+                    <div class="method-sig">.Cancelled &rarr; Signal</div>
+                    <p>Fires when <code>:Stop()</code> is called manually.</p>
+                </div>
+
+                <div class="api-card">
+                    <span class="tag tag-event">Event</span>
+                    <div class="method-sig">.MarkerReached &rarr; Signal(name, eventData)</div>
+                    <p>Fires when playback crosses an animation event marker. The callback receives the event name and the full event data table.</p>
+<pre><code>track.MarkerReached:Connect(function(name, data)
+    if name == "PlaySound" then
+        SoundService:PlayLocalSound(data.Data)
+    end
+end)</code></pre>
+                </div>
+
+                <h2>Full Example</h2>
+<pre><code>local AnimationService = require(game.ReplicatedStorage.CascadeAnimations.AnimationService)
+local SlideAnim = require(game.ReplicatedStorage.CascadeAnimations.SlideIn)
+
+local track = AnimationService.CreateTrack(menuFrame, SlideAnim, {
+    Delay = 0.2,
+    DeleteOnComplete = true,
+})
+
+track.Completed:Connect(function()
+    print("Menu is now visible")
+end)
+
+track:Play()</code></pre>
+            </section>
+
+            <!-- ==================== BATCHEDANIMTRACK ==================== -->
+            <section id="batchedanimtrack" class="content-section hidden">
+                <h1>BatchedAnimTrack</h1>
+                <p class="section-intro">Returned by <code>AnimationService.CreateBatchedTrack()</code>. Animates the same animation across multiple instances with a single track, supporting staggered timing.</p>
+
+                <h2>Properties</h2>
+
+                <div class="api-card">
+                    <table class="param-table">
+                        <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+                        <tr><td>Instances</td><td>{Instance}</td><td>Array of root instances being animated</td></tr>
+                        <tr><td>Stagger</td><td>number</td><td>Delay in seconds between each instance's start time</td></tr>
+                        <tr><td>State</td><td>"Playing" | "Paused" | "Suspended"</td><td>Current playback state</td></tr>
+                        <tr><td>CurrentTime</td><td>number</td><td>Global playback time (including stagger)</td></tr>
+                        <tr><td>Speed</td><td>number</td><td>Playback speed multiplier</td></tr>
+                        <tr><td>Duration</td><td>number</td><td>Total duration = animation length + (instanceCount - 1) * stagger</td></tr>
+                    </table>
+                </div>
+
+                <h2>Methods</h2>
+                <p>BatchedAnimTrack shares the same method interface as AnimTrack:</p>
+
+                <div class="api-card">
+                    <table class="param-table">
+                        <tr><th>Method</th><th>Description</th></tr>
+                        <tr><td>:Play()</td><td>Starts or resumes playback</td></tr>
+                        <tr><td>:Pause()</td><td>Freezes at current time</td></tr>
+                        <tr><td>:Stop()</td><td>Stops and fires Cancelled</td></tr>
+                        <tr><td>:Scrub(time)</td><td>Jumps to a global time position</td></tr>
+                        <tr><td>:SetSpeed(speed)</td><td>Changes playback speed</td></tr>
+                        <tr><td>:SetLoop(loop)</td><td>Changes loop behavior</td></tr>
+                        <tr><td>:SetStagger(seconds)</td><td>Changes stagger delay and recalculates duration</td></tr>
+                        <tr><td>:Destroy()</td><td>Marks for cleanup</td></tr>
+                    </table>
+                </div>
+
+                <h2>Events</h2>
+                <p>Same as AnimTrack: <code>.Completed</code>, <code>.Looped</code>, <code>.Cancelled</code>, <code>.MarkerReached</code>.</p>
+                <p>For <code>MarkerReached</code>, the callback receives a third argument: the specific <code>Instance</code> that triggered the event.</p>
+
+<pre><code>track.MarkerReached:Connect(function(name, data, instance)
+    -- 'instance' tells you which item in the batch hit the marker
+    print(instance.Name, "reached marker:", name)
+end)</code></pre>
+
+                <h2>Stagger Example</h2>
+<pre><code>-- Stagger a list of items for a cascading reveal
+local items = scrollFrame:GetChildren()
+
+local track = AnimationService.CreateBatchedTrack(items, FadeIn, {
+    Stagger = 0.04,  -- 40ms between each
+    Loop = false,
+    Reset = true,
+})
+
+track.Completed:Connect(function()
+    print("All items revealed")
+end)
+
+track:Play()</code></pre>
+            </section>
+
+            <!-- ==================== SIGNAL ==================== -->
+            <section id="signal" class="content-section hidden">
+                <h1>Signal</h1>
+                <p class="section-intro">A lightweight custom event class used throughout Cascade. Follows standard Roblox signal conventions. Shipped as part of the AnimationService module.</p>
+
+                <h2>Creating a Signal</h2>
+<pre><code>local Signal = require(path.to.AnimationService.Signal)
+
+local onHealthChanged = Signal.new()</code></pre>
+
+                <h2>Methods</h2>
+
+                <div class="api-card">
+                    <span class="tag tag-method">Method</span>
+                    <div class="method-sig">:Connect(callback: (...any) -> ()) &rarr; Connection</div>
+                    <p>Subscribes a callback. Returns a <code>Connection</code> object with a <code>Disconnect()</code> method and a <code>Connected</code> property.</p>
+<pre><code>local connection = onHealthChanged:Connect(function(newHealth)
+    print("Health:", newHealth)
+end)
+
+-- Later:
+connection.Disconnect() -- stop listening</code></pre>
+                </div>
+
+                <div class="api-card">
+                    <span class="tag tag-method">Method</span>
+                    <div class="method-sig">:Fire(...any)</div>
+                    <p>Invokes all connected callbacks with the given arguments. Each callback runs in its own thread via <code>task.spawn</code>.</p>
+<pre><code>onHealthChanged:Fire(75)</code></pre>
+                </div>
+
+                <div class="api-card">
+                    <span class="tag tag-method">Method</span>
+                    <div class="method-sig">:Wait() &rarr; ...any</div>
+                    <p>Yields the current thread until the signal is fired. Returns whatever arguments were passed to <code>:Fire()</code>.</p>
+<pre><code>local status = track.Completed:Wait()
+print("Track completed")</code></pre>
+                </div>
+
+                <div class="api-card">
+                    <span class="tag tag-method">Method</span>
+                    <div class="method-sig">:Destroy()</div>
+                    <p>Disconnects all listeners and marks them as disconnected. The signal becomes inert.</p>
+                </div>
+            </section>
+
+            <!-- ==================== TYPES ==================== -->
+            <section id="types" class="content-section hidden">
+                <h1>Types & Config</h1>
+                <p class="section-intro">Reference for the data structures used by the animation engine.</p>
+
+                <h2>AnimationConfig</h2>
+                <p>The primary data format. This is what the editor exports when you save an animation.</p>
+                <div class="api-card">
+                    <table class="param-table">
+                        <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+                        <tr><td>Length</td><td>number</td><td>Total duration in seconds</td></tr>
+                        <tr><td>Loop</td><td>boolean | number?</td><td>Loop forever (<code>true</code>), a specific count, or don't loop (<code>false</code>)</td></tr>
+                        <tr><td>Delay</td><td>number?</td><td>Delay before playback starts (seconds)</td></tr>
+                        <tr><td>Tracks</td><td>{[string]: {Keyframe}}</td><td>Map of track path to keyframe array</td></tr>
+                        <tr><td>Settings</td><td>{[string]: any}?</td><td>Per-track settings (e.g. <code>IsRelative</code>)</td></tr>
+                        <tr><td>Events</td><td>{AnimationEvent}?</td><td>Timeline event markers</td></tr>
+                    </table>
+                </div>
+
+                <h2>Keyframe</h2>
+                <p>A single point in a track's timeline.</p>
+                <div class="api-card">
+                    <table class="param-table">
+                        <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+                        <tr><td>Time</td><td>number</td><td>Position in seconds</td></tr>
+                        <tr><td>Value</td><td>any</td><td>The property value at this point</td></tr>
+                        <tr><td>Easing</td><td>EasingStyle?</td><td>Interpolation curve (e.g. <code>Enum.EasingStyle.Quad</code>)</td></tr>
+                        <tr><td>Direction</td><td>EasingDirection?</td><td>Easing direction (In, Out, InOut)</td></tr>
+                    </table>
+                </div>
+
+                <h2>TrackOptions</h2>
+                <p>Optional flags passed to <code>Play</code>, <code>CreateTrack</code>, etc.</p>
+                <div class="api-card">
+                    <table class="param-table">
+                        <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+                        <tr><td>Delay</td><td>number?</td><td>Seconds to wait before starting</td></tr>
+                        <tr><td>Loop</td><td>boolean | number?</td><td>Override the config's loop setting</td></tr>
+                        <tr><td>Stagger</td><td>number?</td><td>Delay between batch instances (BatchedAnimTrack only)</td></tr>
+                        <tr><td>Reset</td><td>boolean?</td><td>Restore properties to pre-animation values on cleanup</td></tr>
+                        <tr><td>ResetToStart</td><td>boolean?</td><td>Scrub to frame 0 on Stop</td></tr>
+                        <tr><td>Reverse</td><td>boolean?</td><td>Play the animation backwards</td></tr>
+                        <tr><td>DeleteOnComplete</td><td>boolean?</td><td>Auto-destroy the track when it finishes</td></tr>
+                    </table>
+                </div>
+
+                <h2>AnimationEvent</h2>
+                <p>A marker placed on the timeline that fires <code>MarkerReached</code> during playback.</p>
+                <div class="api-card">
+                    <table class="param-table">
+                        <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+                        <tr><td>Time</td><td>number</td><td>Position in seconds</td></tr>
+                        <tr><td>Name</td><td>string</td><td>Identifier for the event</td></tr>
+                        <tr><td>DataType</td><td>string?</td><td>Optional type hint for the data payload</td></tr>
+                        <tr><td>Data</td><td>any?</td><td>Arbitrary data attached to the event</td></tr>
+                    </table>
+                </div>
+
+                <h2>Track Paths</h2>
+                <p>Track keys in the <code>Tracks</code> table use slash-delimited paths. The last segment is the property name. Sub-properties use dot notation.</p>
+<pre><code>-- Direct property on root
+"Transparency"
+
+-- Child object's property
+"ContentFrame/Transparency"
+
+-- Deeply nested
+"LeftPanel/Content/TitleArea/Tagline/TextTransparency"
+
+-- Sub-property (axis isolation)
+"ContentFrame/Size.X.Scale"
+"ContentFrame/Position.Y.Offset"</code></pre>
+                <p>The engine resolves instance paths via <code>FindFirstChild</code> from the root. Every sibling must have a unique name.</p>
+            </section>
+
+            <!-- ==================== EDITOR CONCEPTS ==================== -->
+            <section id="editor-concepts" class="content-section hidden">
+                <h1>Core Concepts</h1>
+                <p class="section-intro">Before using the editor, understand these fundamental concepts.</p>
+
+                <h2>What is a Keyframe?</h2>
+                <p>A <strong style="color:var(--text-primary)">keyframe</strong> is a snapshot of a property's value at a specific point in time. The animation engine interpolates between keyframes to produce smooth motion.</p>
+                <p>For example, to fade a frame from fully visible to invisible:</p>
+                <ul class="feature-list">
+                    <li>Keyframe at <strong>Frame 0</strong>: <code>Transparency = 0</code> (fully visible)</li>
+                    <li>Keyframe at <strong>Frame 30</strong>: <code>Transparency = 1</code> (invisible)</li>
+                </ul>
+                <p>The engine fills in every frame between 0 and 30 automatically based on the easing curve.</p>
+
+                <h2>FPS (Frames Per Second)</h2>
+                <p><strong style="color:var(--text-primary)">FPS</strong> defines the time resolution of your animation. It determines how many frames fit into one second.</p>
+                <ul class="feature-list">
+                    <li><strong>60 FPS</strong> &mdash; each frame = 1/60th of a second (~16.7ms). Smooth and precise.</li>
+                    <li><strong>30 FPS</strong> &mdash; each frame = 1/30th of a second (~33.3ms). Standard for UI.</li>
+                    <li><strong>20 FPS</strong> &mdash; each frame = 1/20th of a second (50ms). Good for simple transitions.</li>
+                </ul>
+                <p>FPS is a timeline grid setting, not a runtime cap. The engine evaluates at Roblox's native framerate and interpolates between your keyframes regardless of FPS.</p>
+
+                <h2>Total Frames</h2>
+                <p><strong style="color:var(--text-primary)">TotalFrames</strong> defines how many frames long your animation is. Combined with FPS, it determines the duration:</p>
+                <div class="tip-box tip-info">
+                    <p><strong>Duration = TotalFrames / FPS</strong></p>
+                    <p>Example: 60 frames at 30 FPS = 2.0 seconds</p>
+                </div>
+                <p>When you change FPS in Animation Settings, TotalFrames stays the same and the duration adjusts. When you change TotalFrames, the duration adjusts too.</p>
+
+                <h2>Easing</h2>
+                <p>Each keyframe has an <strong style="color:var(--text-primary)">easing style</strong> and <strong style="color:var(--text-primary)">direction</strong> that controls how the value transitions <em>to the next</em> keyframe.</p>
+                <p>Cascade supports all Roblox <code>EasingStyle</code> values: Linear, Quad, Cubic, Quart, Quint, Sine, Exponential, Circular, Elastic, Back, Bounce.</p>
+                <p>Directions: <code>In</code> (slow start), <code>Out</code> (slow end), <code>InOut</code> (slow both ends).</p>
+
+                <h2>Relative Mode</h2>
+                <p>Normally, keyframes store <strong>absolute</strong> values (e.g. <code>Size = {0.5, 0, 0.3, 0}</code>). In <strong style="color:var(--text-primary)">Relative Mode</strong>, keyframes store <strong>deltas</strong> (offsets from the instance's current value).</p>
+                <p>This is powerful for reusable effects. A "hover grow" animation that adds <code>+10px</code> to Size works on any button regardless of its base size.</p>
+                <div class="tip-box tip-info">
+                    <p><strong>How it works:</strong> The engine captures the property's value before the animation starts (the "base state"), then adds the keyframe delta on top. Multiple relative animations stack additively.</p>
+                </div>
+
+                <h2>Sub-Property Animation</h2>
+                <p>Most editors lock entire properties like <code>Size</code> or <code>Position</code>. Cascade lets you animate individual axes independently:</p>
+                <ul class="feature-list">
+                    <li><code>Size.X.Scale</code> &mdash; only the X scale</li>
+                    <li><code>Position.Y.Offset</code> &mdash; only the Y offset</li>
+                    <li><code>BackgroundColor3.R</code> &mdash; only the red channel</li>
+                </ul>
+                <p>This enables effects that would be impossible otherwise, like growing width while shrinking height independently with different easing curves.</p>
+
+                <h2>Animation Events</h2>
+                <p>Events are markers placed on the timeline that fire callbacks during playback. Use them to sync sounds, trigger particle effects, or run game logic at precise moments in your animation.</p>
+                <p>Events fire via the <code>MarkerReached</code> signal on AnimTrack/BatchedAnimTrack. Each event has a <code>Name</code> and optional <code>Data</code> payload.</p>
+            </section>
+
+            <!-- ==================== EDITOR FEATURES ==================== -->
             <section id="editor-features" class="content-section hidden">
-                <h2 class="text-4xl font-bold mb-6 text-white">Editor Features</h2>
-                <p class="mb-8 text-gray-400">A visual guide to the power tools inside Cascade UI Animator.</p>
+                <h1>Editor Features</h1>
+                <p class="section-intro">The Cascade editor is a dockable Roblox Studio plugin. Here's what it can do.</p>
 
-                <div class="feature-grid">
-                    
+                <h2>Hierarchy Browser</h2>
+                <p>The left panel shows a tree view of the selected instance and all its descendants. Click any object in the hierarchy to select it in the Studio Explorer. The hierarchy panel is toggleable from the tracklist header.</p>
 
-                    <div class="feature-card">
-                        <div class="p-4">
-                            <h3 class="text-xl font-bold text-white mb-2">Axis Isolation & Stagger</h3>
-                            <p class="text-gray-400 text-sm">Most editors lock the whole <code>Size</code> property. Cascade lets you animate <code>Size.X</code> independently of <code>Size.Y</code>. Combined with the <strong>Stagger</strong> runtime feature (shown here), you can create complex, fluid reveals.</p>
-                        </div>
-                        <img src="axis_isolation_staggered_items.gif" alt="Staggered Animation Example" class="feature-img">
-                    </div>
+                <h2>Property Tracklist</h2>
+                <p>The right side of the tracklist shows all animated properties, grouped by object. Each row represents one track (one animatable property). Properties are added via the Property Popup.</p>
 
-        
-                    <div class="feature-card">
-                        <div class="p-4">
-                            <h3 class="text-xl font-bold text-white mb-2">Smart Inspector</h3>
-                            <p class="text-gray-400 text-sm">Don't fight with input fields. The inspector accepts loose syntax like <code>{0.5, 10}</code> for UDim and automatically formats it to Roblox standards.</p>
-                        </div>
-                        <img src="SmartInspector.gif" alt="Smart Inspector Input" class="feature-img">
-                    </div>
+                <h2>Timeline Grid</h2>
+                <p>The main workspace. Keyframes appear as diamonds on track rows aligned to the frame grid. You can:</p>
+                <ul class="feature-list">
+                    <li><strong>Double-click</strong> a track row to insert a keyframe at the cursor position</li>
+                    <li><strong>Click</strong> a keyframe to select it</li>
+                    <li><strong>Right-click</strong> a keyframe to open the keyframe editor</li>
+                    <li><strong>Drag</strong> keyframes to retime them</li>
+                    <li><strong>Box-select</strong> to select multiple keyframes across tracks</li>
+                    <li><strong>Scroll</strong> to move through time, <kbd>Ctrl</kbd>+Scroll to zoom</li>
+                    <li><strong>Middle-mouse drag</strong> to pan</li>
+                </ul>
 
+                <h2>Auto-Record</h2>
+                <p>When recording mode is active (the record button is toggled on), any property change you make in the Studio viewport or Properties panel is automatically captured as a keyframe at the current frame position. This lets you "act out" animations naturally.</p>
 
-                    <div class="feature-card">
-                        <div class="p-4">
-                            <h3 class="text-xl font-bold text-white mb-2">Multi-Select & Drag</h3>
-                            <p class="text-gray-400 text-sm">Box-select multiple keyframes across different tracks and drag them as a group. Retiming complex animations takes seconds, not minutes.</p>
-                        </div>
-                        <img src="cut_drag_selection.gif" alt="Multi-Select and Drag" class="feature-img">
-                    </div>
+                <h2>Keyframe Editor</h2>
+                <p>Right-click a keyframe (or press the keybind) to open the keyframe editor popup. Here you can:</p>
+                <ul class="feature-list">
+                    <li>Edit the exact value with type-aware inputs</li>
+                    <li>Change the easing style and direction</li>
+                    <li>Toggle relative mode per track</li>
+                </ul>
 
-                    <div class="feature-card">
-                        <div class="p-4">
-                            <h3 class="text-xl font-bold text-white mb-2">Relative Mode (∆)</h3>
-                            <p class="text-gray-400 text-sm">The killer feature. Define animations as "offsets" (e.g., +10px size) rather than absolute values. This lets you layer hover effects on top of any layout without breaking it.</p>
-                        </div>
-                        <img src="hover_anim.gif" alt="Relative Mode Example" class="feature-img">
-                    </div>
+                <h2>Smart Inspector</h2>
+                <p>The value input fields accept loose syntax. For example, you can type <code>{0.5, 10}</code> for a UDim value and the parser will format it correctly. Color values accept 0-255 RGB.</p>
 
-                    <div class="feature-card">
-                        <div class="p-4">
-                            <h3 class="text-xl font-bold text-white mb-2">Non-Destructive Editing</h3>
-                            <p class="text-gray-400 text-sm">Streamline your editing process with industry-standard <strong>Undo, Copy, Cut, and Paste</strong>. Duplicate keyframes across tracks or reverse mistakes instantly, ensuring a fluid and forgiving creative environment.</p>
-                        </div>
-                        <img src="clipboard_workflow.gif" alt="Clipboard and Undo" class="feature-img"> 
-                    </div>
+                <h2>Clipboard &amp; Undo</h2>
+                <p>Full non-destructive editing with undo/redo history. Copy, cut, and paste keyframes across tracks. Multi-select keyframes with box selection and move them as a group.</p>
 
-                    <div class="feature-card">
-                        <div class="p-4">
-                            <h3 class="text-xl font-bold text-white mb-2">Customizable Keybinds</h3>
-                            <p class="text-gray-400 text-sm">Tailor the editor to your muscle memory. Remap every shortcut in the <strong>Keybind Settings</strong> to match your preferred workflow, ensuring a seamless editing experience.</p>
-                        </div>
-                        <img src="settings.gif" alt="Keybind Settings" class="feature-img">
-                    </div>
+                <h2>Animation Settings</h2>
+                <p>Open via the toolbar or keybind. Configure:</p>
+                <ul class="feature-list">
+                    <li><strong>FPS</strong> &mdash; frame rate (affects grid density and time conversion)</li>
+                    <li><strong>Total Frames</strong> &mdash; animation length in frames</li>
+                    <li><strong>Loop</strong> &mdash; whether the animation loops during preview</li>
+                    <li><strong>Events</strong> &mdash; enable/disable the event track row</li>
+                </ul>
+                <p>The computed length in seconds is displayed as a read-only label.</p>
 
-                    <div class="feature-card">
-                        <div class="p-4">
-                            <h3 class="text-xl font-bold text-white mb-2">Save & Import System</h3>
-                            <p class="text-gray-400 text-sm">Never lose progress. The robust <strong>IO System</strong> allows you to serialize animations to data strings, making it effortless to save backups or transfer animations between projects or team members.</p>
-                        </div>
-                        <img src="io.gif" alt="Import and Export" class="feature-img">
-                    </div>
+                <h2>Save &amp; Load</h2>
+                <p>Animations are serialized to ModuleScripts inside <code>ReplicatedStorage.CascadeAnimations</code>. The save/open dialogs let you name, browse, and overwrite animations. The exported format is a plain Luau table that you <code>require()</code> at runtime.</p>
 
-                    <div class="feature-card">
-                        <div class="p-4">
-                            <h3 class="text-xl font-bold text-white mb-2">Intuitive Keyframing</h3>
-                            <p class="text-gray-400 text-sm">Capture motion naturally with <strong>Auto-Record</strong>, which logs changes made in the viewport directly to the timeline. For precise control, simply <strong>Double-Click</strong> on any track to insert a keyframe at the exact cursor position.</p>
-                        </div>
-                        <img src="autorecord_click.gif" alt="Timeline Interaction" class="feature-img">
-                    </div>
+                <h2>Themes</h2>
+                <p>The editor ships with multiple themes: Dark, Light, Blue, and Orange. Themes are managed by the ThemeManager and affect all UI components.</p>
 
+                <h2>Customizable Keybinds</h2>
+                <p>Every action can be rebound in the keybind settings. Bindings persist across Studio sessions via <code>plugin:SetSetting()</code>. You can assign multiple keys to the same action, add modifier keys (Shift, Ctrl, Alt), and reset to defaults.</p>
+            </section>
+
+            <!-- ==================== KEYBINDS ==================== -->
+            <section id="editor-keybinds" class="content-section hidden">
+                <h1>Keybinds</h1>
+                <p class="section-intro">Default keyboard shortcuts. All keybinds are customizable in the editor's settings panel.</p>
+
+                <h2>Playback</h2>
+                <table class="keybind-table">
+                    <tr><th>Action</th><th>Default Keybind</th><th>Description</th></tr>
+                    <tr><td>Play / Pause</td><td><kbd>Space</kbd></td><td>Toggle animation playback</td></tr>
+                    <tr><td>Next Frame</td><td><kbd>K</kbd> or <kbd>&rarr;</kbd></td><td>Step one frame forward</td></tr>
+                    <tr><td>Previous Frame</td><td><kbd>J</kbd> or <kbd>&larr;</kbd></td><td>Step one frame backward</td></tr>
+                    <tr><td>Go to Start</td><td><kbd>H</kbd></td><td>Jump to the first frame</td></tr>
+                    <tr><td>Go to End</td><td><kbd>L</kbd></td><td>Jump to the last keyframe</td></tr>
+                </table>
+
+                <h2>Editing</h2>
+                <table class="keybind-table">
+                    <tr><th>Action</th><th>Default Keybind</th><th>Description</th></tr>
+                    <tr><td>Toggle Record</td><td><kbd>R</kbd></td><td>Toggle recording mode</td></tr>
+                    <tr><td>Add Keyframe</td><td><kbd>0</kbd> or <kbd>+</kbd></td><td>Add keyframe at current frame</td></tr>
+                    <tr><td>Delete Keyframe</td><td><kbd>Shift</kbd>+<kbd>D</kbd> or <kbd>Backspace</kbd></td><td>Delete selected keyframes</td></tr>
+                    <tr><td>Reset Object</td><td><kbd>G</kbd></td><td>Reset object to initial state</td></tr>
+                </table>
+
+                <h2>Clipboard</h2>
+                <table class="keybind-table">
+                    <tr><th>Action</th><th>Default Keybind</th><th>Description</th></tr>
+                    <tr><td>Undo</td><td><kbd>Shift</kbd>+<kbd>Z</kbd></td><td>Undo last action</td></tr>
+                    <tr><td>Redo</td><td><kbd>Shift</kbd>+<kbd>Y</kbd></td><td>Redo last action</td></tr>
+                    <tr><td>Copy</td><td><kbd>Shift</kbd>+<kbd>C</kbd></td><td>Copy selection</td></tr>
+                    <tr><td>Cut</td><td><kbd>Shift</kbd>+<kbd>X</kbd></td><td>Cut selection</td></tr>
+                    <tr><td>Paste</td><td><kbd>Shift</kbd>+<kbd>V</kbd></td><td>Paste selection</td></tr>
+                </table>
+
+                <h2>Popups</h2>
+                <table class="keybind-table">
+                    <tr><th>Action</th><th>Default Keybind</th><th>Description</th></tr>
+                    <tr><td>Open Property Popup</td><td><kbd>5</kbd></td><td>Open the property manager</td></tr>
+                    <tr><td>Open Keyframe Editor</td><td><kbd>6</kbd> or <kbd>Right-click</kbd></td><td>Open keyframe editor</td></tr>
+                    <tr><td>Open Animation Settings</td><td><kbd>7</kbd></td><td>Open animation settings popup</td></tr>
+                </table>
+
+                <h2>Navigation</h2>
+                <table class="keybind-table">
+                    <tr><th>Action</th><th>Default</th><th>Description</th></tr>
+                    <tr><td>Pan Timeline</td><td><kbd>Middle Mouse</kbd> drag</td><td>Pan the timeline view</td></tr>
+                    <tr><td>Zoom Timeline</td><td><kbd>Ctrl</kbd>+Scroll</td><td>Zoom in/out on the timeline</td></tr>
+                </table>
+            </section>
+
+            <!-- ==================== TIPS ==================== -->
+            <section id="tips" class="content-section hidden">
+                <h1>Best Practices</h1>
+                <p class="section-intro">Practical tips for getting the most out of Cascade.</p>
+
+                <h2>Naming &amp; Hierarchy</h2>
+
+                <div class="tip-box tip-do">
+                    <p><strong>DO: Use unique sibling names</strong></p>
+                    <p>The engine resolves paths via <code>FindFirstChild</code>. If two children share a name, the wrong one may be animated.</p>
+                </div>
+
+                <div class="tip-box tip-dont">
+                    <p><strong>DON'T: Rename instances after animating them</strong></p>
+                    <p>Track paths are baked into the animation data. Renaming an instance will break path resolution. If you must rename, re-save the animation.</p>
+                </div>
+
+                <div class="tip-box tip-do">
+                    <p><strong>DO: Keep hierarchies stable</strong></p>
+                    <p>Moving an animated child to a different parent will break its track path. Design your UI structure before animating.</p>
+                </div>
+
+                <h2>Service vs. Track Mode</h2>
+
+                <div class="tip-box tip-do">
+                    <p><strong>DO: Use Service mode for simple interactions</strong></p>
+                    <p><code>AnimationService.Play()</code> handles track reuse, signal proxying, and cleanup automatically. Use it for hovers, clicks, and basic transitions where you don't need frame-level control.</p>
+                </div>
+
+                <div class="tip-box tip-do">
+                    <p><strong>DO: Use Track mode for complex sequences</strong></p>
+                    <p>If you need to scrub, change speed dynamically, or coordinate multiple tracks, use <code>CreateTrack()</code>. Store the track reference for ongoing control.</p>
+                </div>
+
+                <div class="tip-box tip-dont">
+                    <p><strong>DON'T: Create tracks in loops without cleanup</strong></p>
+                    <p>Every <code>CreateTrack()</code> call adds a track to the engine. If you create tracks in a loop (e.g., per-frame), they'll accumulate. Use <code>DeleteOnComplete = true</code> or call <code>:Destroy()</code> when done.</p>
+                </div>
+
+                <h2>Performance</h2>
+
+                <div class="tip-box tip-do">
+                    <p><strong>DO: Use Preprocess for large batches</strong></p>
+                    <p>If you're animating 100+ instances with the same config, call <code>AnimationService.Preprocess(config)</code> once and pass the result. This avoids re-parsing the config for each instance.</p>
+                </div>
+
+                <div class="tip-box tip-do">
+                    <p><strong>DO: Use PlayBatch with Stagger for lists</strong></p>
+                    <p>Instead of calling <code>Play()</code> in a loop with <code>task.wait()</code>, use <code>PlayBatch()</code> with a <code>Stagger</code> option. It's a single track internally, meaning one evaluation pass instead of N.</p>
+                </div>
+
+                <div class="tip-box tip-warn">
+                    <p><strong>TIP: ClearInstance for full cleanup</strong></p>
+                    <p>When a UI element is being removed or completely reset, call <code>ClearInstance()</code> rather than just <code>Stop()</code>. This restores properties AND frees the base-state cache.</p>
+                </div>
+
+                <h2>Relative Mode</h2>
+
+                <div class="tip-box tip-do">
+                    <p><strong>DO: Use Relative mode for reusable effects</strong></p>
+                    <p>Hover effects, click punches, shake animations &mdash; anything that should work regardless of the element's current size/position. Define keyframes as deltas and the engine adds them on top of the current state.</p>
+                </div>
+
+                <div class="tip-box tip-dont">
+                    <p><strong>DON'T: Mix Absolute and Relative on the same property</strong></p>
+                    <p>If two animations affect the same property, and one is Absolute while the other is Relative, the Absolute one will overwrite the base value. Keep effects on the same property in the same mode.</p>
+                </div>
+
+                <div class="tip-box tip-do">
+                    <p><strong>DO: Use Reset = true for hover effects</strong></p>
+                    <p>When using <code>AnimationService.Play()</code> with a relative hover animation, pass <code>{ Reset = true }</code>. When the animation is cleared, the property returns to its pre-animation value.</p>
+                </div>
+
+                <h2>Editor Workflow</h2>
+
+                <div class="tip-box tip-do">
+                    <p><strong>DO: Set FPS and TotalFrames before animating</strong></p>
+                    <p>Decide your frame rate and animation length upfront. Changing FPS later re-maps keyframe times, which may shift them off clean frame boundaries.</p>
+                </div>
+
+                <div class="tip-box tip-do">
+                    <p><strong>DO: Use Auto-Record for exploratory work</strong></p>
+                    <p>Toggle record mode on, scrub to a frame, and adjust properties in the viewport. Keyframes are created automatically. Great for "feeling out" an animation.</p>
+                </div>
+
+                <div class="tip-box tip-warn">
+                    <p><strong>TIP: Use sub-property tracks for independent axes</strong></p>
+                    <p>Need width to ease with Quad but height with Bounce? Add separate tracks for <code>Size.X</code> and <code>Size.Y</code> with different easing curves.</p>
+                </div>
+
+                <div class="tip-box tip-warn">
+                    <p><strong>TIP: Save frequently</strong></p>
+                    <p>Animations are stored as ModuleScripts in ReplicatedStorage. Save often &mdash; the editor doesn't auto-save, and Studio crashes happen.</p>
                 </div>
             </section>
 
-            <section id="changelog" class="content-section hidden">
-                <h2 class="text-4xl font-bold mb-6 text-white">Changelog</h2>
-                <div id="changelog-content" class="space-y-8">
-                </div>
-            </section>
-
-            <section id="roadmap" class="content-section hidden">
-                <h2 class="text-4xl font-bold mb-6 text-white">Roadmap</h2>
-                
-                <div class="space-y-6">
-                    <div class="roadmap-item p-4 bg-gray-800 rounded-lg">
-                        <h3 class="text-xl font-semibold text-green-400 mb-1">Animation Events (In Progress)</h3>
-                        <p class="text-gray-300 mb-2">Fire code from timeline markers. Sync sounds and logic perfectly.</p>
-                    </div>
-                    <div class="roadmap-item p-4 bg-gray-800 rounded-lg">
-                        <h3 class="text-xl font-semibold text-green-400 mb-1">Editor Polish (In Progress)</h3>
-                        <p class="text-gray-300 mb-2">Improve overall layout and feel of the editor.</p>
-                    </div>
-                    <div class="roadmap-item p-4 bg-gray-800 rounded-lg">
-                        <h3 class="text-xl font-semibold text-white mb-1">Easing curve Visualizer</h3>
-                        <p class="text-gray-300 mb-2">Instead of selecting "Quad Out" from a dropdown, show a small curve preview.</p>
-                    </div>
-                    
-                    
-                </div>
-            </section>
         </main>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const sidebar = document.querySelector('.sidebar');
-            const mainContent = document.querySelector('main');
-            const navLinks = document.querySelectorAll('.nav-link');
-            const sections = document.querySelectorAll('.content-section');
-
-            const changelogData = [
-                {
-                    version: "2.0.0",
-                    date: "2026-02-05",
-                    added: [ 
-                        "<b>Dual Paradigm:</b> Introduced <code>CreateTrack</code> and <code>CreateBatchedTrack</code> for Object-Oriented control alongside the standard Service API.",
-                        "Tracks have <code>.Completed</code>, <code>.Looped</code>, and <code>.Cancelled</code> events.",
-                        "Added <code>Pause/Resume</code> support and <code>SetFrame</code> for precise timeline jumping.",
-                    ],
-                    changed: [ 
-                        "<code>ClearInstance</code> now resets ALL properties modified by an animation, not just position/size.",
-                    ],
-                    removed: ["BindToEvent", "GetRunner", "SetToStart", "SetLoop", "Also removed TrackOptions from the Stop functions"]
-                },
-                {
-                    version: "1.7.3",
-                    date: "2026-01-15",
-                    added: [ 
-                        "Keybinds: Added keyboard shortcuts to improve workflow efficiency: Play/Stop (Space), Step Forward (K or Right), Step Backward (J or Left), Toggle Record (R), Restore Initial State (G), Add Keyframe (0, +, or Keypad +), Go to Start (H), and Go to End (L).", 
-                        "Expanded Support for UIComponents: UIGradient, UIScale, and UIPadding have been added as animatable components. Additionally, support for UIStroke has been expanded to include more properties."
-                    ],
-                    fixed: [ 
-                        "Undo Logic: Resolved an issue where the undo action would incorrectly remove multiple keyframes; it now correctly deletes the last added keyframe."
-                    ],
-                    
-                },
-                {
-                    version: "1.7.2",
-                    date: "2026-01-03",
-                    added: [
-                        "Stop Options: Added an optional 'PlayOptions' argument to AnimationService.Stop and StopBatch. This allows users to pass 'Reset' or 'ResetToStart' flags dynamically when manually interrupting an animation.",
-                        "ClearInstance: Added clear instance to the public API. 'ClearInstance', performs a complete cleanup of both the property cache and the persistent animator lifecycle connection."
-                    ],
-                    changed: [
-                        "Signal: Refactored the internal Signal class to follow standard Roblox API conventions, including Connect, Fire, Destroy, and Wait. Connect now returns a Connection object with a Disconnect() method and a Connected property.",
-                        "Playing Animationa: 'Play' now always captures the pre-animation property state. This ensures that 'Reset' functionality is available during 'Stop' even if the animation wasn't initially started with reset enabled."
-                    ],
-                    fixed: [
-                        "Looped Signal: Fixed a missing event trigger where session signals failed to fire the 'Looped' state when an animation completed a cycle."
-                    ]
-                },
-                {
-                    version: "1.7.1",
-                    date: "2025-12-18",
-                    changed: [
-                        "Signal Architecture: AnimationService.Play now returns a unique 'Session Signal' for each call. This prevents listener accumulation when reusing animations, eliminating the need for manual Disconnect() management."
-                    ],
-                    fixed: [
-                        "Reverse Interrupt Bug: Fixed a critical logic error where switching an animation from Reverse to Normal mode (or vice versa) caused the timeline cursor to jump incorrectly."
-                    ]
-                },
-                {
-                    version: "1.7.0",
-                    date: "2025-12-10",
-                    added: [
-                        "Persistent Animators: Completely replaced the 'Fire-and-Forget' system with persistent Animator objects. Tracks are now reused intelligently.",
-                        "Global Accumulator: Implemented a global render buffer. Multiple animations (Click + Hover) now blend additively without fighting.",
-                        "Active Lifecycle Management: The engine now hooks into Instance.Destroying to instantly free memory, preventing 'Zombie' iteration lag."
-                    ],
-                    changed: [
-                        "Performance: Optimized high-volume animation handling to remain stable under heavy loads.",
-                        "Reversing: Playing an animation in reverse now hijacks the active track, preserving the exact visual state for smooth transitions.",
-                        "Math: Removed closure generation in the Evaluator to significantly reduce Garbage Collection pressure."
-                    ],
-                    fixed: [
-                        "Race Conditions: Fixed the 'Split Brain' issue where two animations modifying the same object would flicker or override each other based on random iteration order.",
-                        "Memory Leaks: Fixed issue where weak tables were holding strong references to values, preventing garbage collection."
-                    ]
-                },
-                {
-                    version: "1.6.1",
-                    date: "2025-12-07",
-                    added: [
-                        "Boolean Logic: Added support for partial boolean inputs (type 't' for true)."
-                    ],
-                    changed: [
-                        "Inspector Color3: Switched display to 0-255 RGB format.",
-                    ],
-                    fixed: [
-                        "Inspector Inputs: Fixed boolean property editing."
-                    ]
-                },
-                {
-                    version: "1.6.0",
-                    date: "2025-12-05",
-                    changed: [
-                        "Architectural Overhaul: Rewrote the core AnimationService runtime engine for massive performance gains.",
-                        "Centralized Loop: Switched from one Heartbeat connection per object to a single, global connection for all active animations, drastically reducing CPU overhead.",
-                        "Optimized Accessors: Implemented Setter and Lerp Closures to eliminate expensive runtime operations (string parsing, pcall, typeof checks) during the animation frame cycle.",
-                        "Reference Safety: Ensured Relative Mode captures static, immutable BaseValues to prevent accelerated drift or 'flying off' bugs."
-                    ],
-                    fixed: [
-                        "Relative Mode: Fixed the infinite acceleration bug by ensuring the base value is captured once upon Play, not read every frame.",
-                        "Reverse Playback: Fixed the cursor logic to correctly handle time decrementing, allowing smooth reverse animation and scrubbing."
-                    ]
-                },
-                {
-                    version: "1.5.3",
-                    date: "2025-12-04",
-                    added: [
-                        "Batch State API: Expanded the AnimationService API with optimized batch functions for high-performance state management.",
-                        "SetTimeBatch(instances, config, time): Sets the animation time for a list of instances. Pre-processes data once to minimize overhead.",
-                        "SetToStartBatch(instances, config): Instantly snaps a list of instances to their frame 0 state."
-                    ],
-                    changed: [],
-                    fixed: []
-                },
-                {
-                    version: "1.5.2",
-                    date: "2025-12-04",
-                    added: [],
-                    changed: [
-                        "Strict State Separation: Overhauled the state management logic to prevent data corruption. The 'Pre-Animation' state is now captured only upon selection and is never modified during the session."
-                    ],
-                    fixed: [
-                        "Interpolation Glitch: Fixed a critical bug where values would 'snap' or 'toggle' instead of interpolating smoothly. This was due to non-numeric types being stored.",
-                        "Frame 0 Corruption: Fixed a bug where clicking 'Stop' would trigger the Auto-Recorder, overwriting Frame 0 with the object's reset position.",
-                        "Reverse Playback: Fixed logic to allow the timeline cursor to move backwards correctly, enabling smooth reverse animation and scrubbing."
-                    ]
-                },
-                {
-                    version: "1.5.1",
-                    date: "2025-12-03",
-                    fixed: [
-                        "Preplaystate: Fixed the issue where the object was not returning to the pre-play state."
-                    ]
-                },
-                {
-                    version: "1.5.0",
-                    date: "2025-12-03",
-                    added: [
-                        "Manual State Control: Added new API methods to AnimationService for precise control over object state without needing to play the animation.",
-                        "SetTime(instance, config, time): Snaps the object to the exact state defined at the given timestamp.",
-                        "SetToStart(instance, config): Helper function to instantly snap the object to the first frame (Time 0).",
-                        "Reverse Playback: Added a Reverse option to PlayOptions. When set to true, the animation plays backwards."
-                    ],
-                    changed: [],
-                    fixed: []
-                },
-                {
-                    version: "1.4.0",
-                    date: "2025-12-03",
-                    added: [
-                        "Initial State Capture: The editor now captures the state of an object before you start animating it.",
-                        "Auto-Reset: When you deselect an object or change the target, the object automatically reverts to its pre-animated state, keeping your workspace clean.",
-                        "AnimationService Reset Options: Added powerful new options to AnimationService.Play: Reset = true and ResetToStart = true."
-                    ],
-                    changed: [],
-                    fixed: []
-                },
-                {
-                    version: "1.3.0",
-                    date: "2025-12-02",
-                    added: [ "Save Workflow Overhaul", "Hierarchy Validation", "Keybind System Upgrade"],
-                    changed: ["UI Polish", "Input Handling"],
-                    fixed: ["Multi-Select Dragging", "Z-Index Issues"]
-                },
-                {
-                    version: "1.0.0",
-                    date: "2025-11-29",
-                    added: ["Compositor Engine", "Sub-Channel Animation", "Smart Relative Mode (∆)", "WYSIWYG Editor", "Auto-Recorder"],
-                    changed: [],
-                    fixed: []
-                }
-            ];
-
-            const changelogContainer = document.getElementById('changelog-content');
-            changelogData.forEach(entry => {
-                const entryHtml = `
-                    <div class="p-4 rounded-lg api-card">
-                        <h3 class="text-2xl font-bold mb-1 text-white">${entry.version}</h3>
-                        <p class="changelog-date text-sm">${entry.date}</p>
-                        
-                        ${entry.added && entry.added.length > 0 ? `
-                        <p class="font-semibold text-green-400 mt-4 mb-1">Added:</p>
-                        <ul class="list-disc list-inside ml-4 text-sm text-gray-300">
-                            ${entry.added.map(item => `<li>${item}</li>`).join('')}
-                        </ul>` : ''}
-                        
-                        ${entry.changed && entry.changed.length > 0 ? `
-                        <p class="font-semibold text-yellow-400 mt-4 mb-1">Changed:</p>
-                        <ul class="list-disc list-inside ml-4 text-sm text-gray-300">
-                            ${entry.changed.map(item => `<li>${item}</li>`).join('')}
-                        </ul>` : ''}
-                        
-                        ${entry.fixed && entry.fixed.length > 0 ? `
-                        <p class="font-semibold text-red-400 mt-4 mb-1">Fixed:</p>
-                        <ul class="list-disc list-inside ml-4 text-sm text-gray-300">
-                            ${entry.fixed.map(item => `<li>${item}</li>`).join('')}
-                        </ul>` : ''}
-                        
-                        ${entry.removed && entry.removed.length > 0 ? `
-                        <p class="font-semibold text-red-500 mt-4 mb-1">Removed:</p>
-                        <ul class="list-disc list-inside ml-4 text-sm text-gray-300">
-                            ${entry.removed.map(item => `<li>${item}</li>`).join('')}
-                        </ul>` : ''}
-                    </div>
-                `;
-                changelogContainer.innerHTML += entryHtml;
-            });
-
+        (function() {
             const showSection = (targetId) => {
-                sections.forEach(section => {
-                    section.classList.add('hidden');
-                });
-                document.getElementById(targetId).classList.remove('hidden');
+                document.querySelectorAll('.content-section').forEach(s => s.classList.add('hidden'));
+                const target = document.getElementById(targetId);
+                if (target) target.classList.remove('hidden');
 
-                navLinks.forEach(link => {
-                    link.classList.remove('active');
-                    if (link.getAttribute('data-target') === targetId) {
-                        link.classList.add('active');
-                    }
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.classList.toggle('active', link.getAttribute('data-target') === targetId);
                 });
             };
 
-            navLinks.forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const targetId = e.currentTarget.getAttribute('data-target');
-                    history.pushState(null, '', e.currentTarget.href); 
-                    showSection(targetId);
-                });
-            });
+            const navigate = () => {
+                const hash = window.location.hash.substring(1) || 'overview';
+                showSection(hash);
+            };
 
-            const initialHash = window.location.hash.substring(1) || 'overview';
-            const initialTarget = initialHash || 'overview';
-            showSection(initialTarget);
-
-            const activeLink = document.querySelector(`.nav-link[data-target="${initialTarget}"]`);
-            if (activeLink) {
-                activeLink.classList.add('active');
-            } else {
-                document.querySelector('.nav-link[data-target="overview"]').classList.add('active');
-            }
-        });
+            document.addEventListener('DOMContentLoaded', navigate);
+            window.addEventListener('hashchange', navigate);
+        })();
     </script>
 
 </body>
