@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cascade UI Animator | Docs</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-primary: #0d1117;
@@ -243,7 +243,10 @@
 
         <nav class="sidebar flex flex-col">
             <div style="padding: 1.25rem; border-bottom: 1px solid var(--border);">
-                <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); letter-spacing: 0.02em;">CASCADE</div>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <img src="cascade_logo_C_512.png" alt="Cascade" style="width: 28px; height: 28px;">
+                    <div style="font-family: 'Montserrat', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--text-primary); letter-spacing: 0.04em;">Cascade</div>
+                </div>
                 <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">UI Animator</div>
             </div>
 
@@ -302,20 +305,27 @@ local HoverAnim = require(game.ReplicatedStorage.CascadeAnimations.MyHoverAnim)
 
 -- Service mode: fire and forget
 local signal = AnimationService.Play(button, HoverAnim, { Reset = true })
-signal:Connect(function(status)
-    print(status) -- "Completed", "Looped", or "Cancelled"
+signal:Connect(function(event, ...)
+    if event == "Completed" then
+        print("Animation finished!")
+    elseif event == "MarkerReached" then
+        local name, data = ...
+        print("Event:", name, data)
+    end
 end)
 
 -- Track mode: manual control
 local track = AnimationService.CreateTrack(button, HoverAnim)
+track.MarkerReached:Connect(function(name, data)
+    print("Marker:", name)
+end)
 track:Play()
 task.wait(0.3)
 track:Pause()
 track:Scrub(0) -- jump to start</code></pre>
 
                 <h2>How It Works</h2>
-                <p>Under the hood, Cascade runs a single <code>PreRender</code> loop that evaluates all active tracks. Each frame, every track's keyframes are interpolated, and the results are written into a <strong style="color:var(--text-primary)">Global Property Buffer</strong>. This means multiple animations on the same instance (e.g. a hover + a click + a damage shake) blend together without flickering or property fights.</p>
-                <p>The engine caches the <strong style="color:var(--text-primary)">base state</strong> of every property it touches. When an animation ends with <code>Reset = true</code>, the property is restored to its original value. This cache uses weak references, so destroyed instances are garbage-collected automatically.</p>
+                <p>Cascade blends multiple animations on the same instance additively &mdash; a hover, a click, and a shake can all run simultaneously without flickering or overwriting each other. Use <code>Reset = true</code> to automatically restore properties to their original values when an animation ends.</p>
             </section>
 
             <!-- ==================== ANIMATIONSERVICE ==================== -->
@@ -344,9 +354,12 @@ track:Scrub(0) -- jump to start</code></pre>
     Reverse = false,  -- play forward
 })
 
-signal:Connect(function(status)
-    if status == "Completed" then
+signal:Connect(function(event, ...)
+    if event == "Completed" then
         print("Done!")
+    elseif event == "MarkerReached" then
+        local name, data = ...
+        print("Hit marker:", name)
     end
 end)</code></pre>
                 </div>
@@ -357,10 +370,17 @@ end)</code></pre>
                     <div class="method-sig">.PlayBatch(instances, config, options?) &rarr; Signal</div>
                     <p>Plays the same animation on multiple instances using a single <code>BatchedAnimTrack</code>. Supports <code>Stagger</code> for cascading delays between items.</p>
 <pre><code>local buttons = { btn1, btn2, btn3, btn4 }
-AnimationService.PlayBatch(buttons, FadeIn, {
+local signal = AnimationService.PlayBatch(buttons, FadeIn, {
     Stagger = 0.05,  -- 50ms delay between each item
     Reset = true,
-})</code></pre>
+})
+
+signal:Connect(function(event, ...)
+    if event == "MarkerReached" then
+        local name, data, instance = ...
+        print(instance.Name, "hit marker:", name)
+    end
+end)</code></pre>
                 </div>
 
                 <!-- CreateTrack -->
@@ -877,7 +897,41 @@ print("Track completed")</code></pre>
 
                 <h2>Animation Events</h2>
                 <p>Events are markers placed on the timeline that fire callbacks during playback. Use them to sync sounds, trigger particle effects, or run game logic at precise moments in your animation.</p>
-                <p>Events fire via the <code>MarkerReached</code> signal on AnimTrack/BatchedAnimTrack. Each event has a <code>Name</code> and optional <code>Data</code> payload.</p>
+                <p>Events fire via the <code>MarkerReached</code> signal on AnimTrack/BatchedAnimTrack. Each event has a <code>Name</code> and optional <code>Data</code> payload. Events work correctly in all playback modes: forward, reverse, looping, and staggered batches.</p>
+
+                <h3>Service Mode (Play / PlayBatch)</h3>
+                <p>The signal returned by <code>.Play()</code> and <code>.PlayBatch()</code> wraps all events into a single callback. The first argument is the event type string.</p>
+<pre><code>local signal = AnimationService.Play(button, MyAnim)
+signal:Connect(function(event, ...)
+    if event == "MarkerReached" then
+        local name, data = ...
+        if name == "PlaySound" then
+            SoundService:PlayLocalSound(data.Data)
+        end
+    elseif event == "Completed" then
+        print("Done!")
+    end
+end)</code></pre>
+
+                <h3>Track Mode (CreateTrack / CreateBatchedTrack)</h3>
+                <p>Track objects expose <code>.MarkerReached</code> as a dedicated signal. The callback receives the event name and data directly.</p>
+<pre><code>local track = AnimationService.CreateTrack(button, MyAnim)
+track.MarkerReached:Connect(function(name, data)
+    if name == "PlaySound" then
+        SoundService:PlayLocalSound(data.Data)
+    end
+end)
+track:Play()</code></pre>
+
+                <h3>Batched Track Events</h3>
+                <p>For <code>BatchedAnimTrack</code>, the callback receives a third argument: the specific instance that triggered the event. With stagger, each instance fires its events independently after its stagger delay elapses.</p>
+<pre><code>local track = AnimationService.CreateBatchedTrack(items, RevealAnim, {
+    Stagger = 0.04,
+})
+track.MarkerReached:Connect(function(name, data, instance)
+    print(instance.Name, "reached:", name)
+end)
+track:Play()</code></pre>
             </section>
 
             <!-- ==================== EDITOR FEATURES ==================== -->
