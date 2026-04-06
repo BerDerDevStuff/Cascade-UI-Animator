@@ -1,0 +1,125 @@
+<?xml version="1.0"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-30 -30 599.75 599.75" width="128" height="128" overflow="visible">
+<defs>
+  <filter id="stroke_glow">
+    <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur"/>
+    <feGaussianBlur in="SourceGraphic" stdDeviation="12" result="blur2"/>
+    <feMerge>
+      <feMergeNode in="blur2"/>
+      <feMergeNode in="blur"/>
+      <feMergeNode in="SourceGraphic"/>
+    </feMerge>
+  </filter>
+</defs>
+<style><![CDATA[
+#v2_diamond {
+  fill: #34114f;
+  fill-opacity: 0;
+  stroke: #25e9ed;
+  stroke-width: 20;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+  stroke-miterlimit: 5;
+  paint-order: markers fill stroke;
+  opacity: 0;
+  animation:
+    v2_dia_reveal 650ms ease-in-out 1000ms forwards,
+    v2_dia_fill 400ms ease-out 1100ms forwards;
+}
+@keyframes v2_dia_reveal {
+  to { opacity: 1; }
+}
+@keyframes v2_dia_fill {
+  to { fill-opacity: 1; }
+}
+
+#v2_diamond_glow {
+  fill: none;
+  stroke: #7fffff;
+  stroke-width: 20;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+  stroke-miterlimit: 5;
+  filter: url(#stroke_glow);
+  stroke-dasharray: 1450;
+  stroke-dashoffset: 1450;
+  animation:
+    v2_dia_glow_draw 1000ms ease-out 0ms forwards,
+    v2_dia_glow_fade 650ms ease-in-out 1000ms forwards;
+}
+@keyframes v2_dia_glow_draw {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes v2_dia_glow_fade {
+  to { opacity: 0; }
+}
+
+#v2_chevron {
+  fill: #34114f;
+  fill-opacity: 0;
+  stroke: #25e9ed;
+  stroke-width: 20;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+  stroke-miterlimit: 5;
+  paint-order: markers fill stroke;
+  opacity: 0;
+  animation:
+    v2_chev_reveal 300ms ease-in-out 1300ms forwards,
+    v2_chev_fill 400ms ease-out 1400ms forwards;
+}
+@keyframes v2_chev_reveal {
+  to { opacity: 1; }
+}
+@keyframes v2_chev_fill {
+  to { fill-opacity: 1; }
+}
+
+#v2_chevron_glow {
+  fill: none;
+  stroke: #7fffff;
+  stroke-width: 20;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+  stroke-miterlimit: 5;
+  filter: url(#stroke_glow);
+  stroke-dasharray: 1100;
+  stroke-dashoffset: 1100;
+  animation:
+    v2_chev_glow_draw 800ms ease-out 500ms forwards,
+    v2_chev_glow_fade 300ms ease-in-out 1300ms forwards;
+}
+@keyframes v2_chev_glow_draw {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes v2_chev_glow_fade {
+  to { opacity: 0; }
+}
+
+#v2_logo {
+  transform-origin: 269.875px 269.875px;
+  animation: v2_bounce 500ms cubic-bezier(0.175, 0.885, 0.32, 1.275) 1250ms 1 both;
+}
+@keyframes v2_bounce {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+  100% { transform: scale(1); }
+}
+]]></style>
+
+<g id="v2_logo">
+  <rect id="v2_diamond"
+    width="361.66086" height="361.66086"
+    x="200.83044" y="-180.83043"
+    transform="rotate(45)" />
+  <rect id="v2_diamond_glow"
+    width="361.66086" height="361.66086"
+    x="200.83044" y="-180.83043"
+    transform="rotate(45)" />
+
+  <path id="v2_chevron"
+    d="M 335.29549,460.18746 388.17003,407.31297 250.73227,269.87527 388.17003,132.4371 335.29549,79.56262 144.98333,269.87527 Z" />
+  <path id="v2_chevron_glow"
+    d="M 335.29549,460.18746 388.17003,407.31297 250.73227,269.87527 388.17003,132.4371 335.29549,79.56262 144.98333,269.87527 Z" />
+</g>
+</svg>

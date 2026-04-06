@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 48" width="160" height="48" shape-rendering="geometricPrecision" text-rendering="geometricPrecision">
+<style><![CDATA[
+#tut_icon_to {
+  opacity: 0;
+  animation: tut_icon_move 800ms cubic-bezier(0.175,0.885,0.32,1.275) 0ms 1 normal forwards;
+}
+@keyframes tut_icon_move {
+  0% { transform: translate(-10px,24px); opacity: 0; }
+  100% { transform: translate(23.5px,24px); opacity: 1; }
+}
+#tut_t1_to {
+  opacity: 0;
+  animation: tut_t1_move 800ms cubic-bezier(0.175,0.885,0.32,1.275) 150ms 1 normal forwards;
+}
+@keyframes tut_t1_move {
+  0% { transform: translate(120px,19px); opacity: 0; }
+  100% { transform: translate(48px,19px); opacity: 1; }
+}
+#tut_t2_to {
+  opacity: 0;
+  animation: tut_t2_move 800ms cubic-bezier(0.175,0.885,0.32,1.275) 300ms 1 normal forwards;
+}
+@keyframes tut_t2_move {
+  0% { transform: translate(140px,36px); opacity: 0; }
+  100% { transform: translate(48px,36px); opacity: 1; }
+}
+]]></style>
+<rect width="160" height="48" rx="4" ry="4" fill="#dc2626"/>
+<!-- Play button — centered at origin -->
+<g id="tut_icon_to">
+  <circle cx="0" cy="0" r="13" fill="#fff"/>
+  <polygon points="-5,-8 -5,8 9,0" fill="#dc2626"/>
+</g>
+<!-- Text -->
+<g id="tut_t1_to">
+  <text x="0" y="0" font-family="Arial,Helvetica,sans-serif" font-weight="700" font-size="9" fill="#fff" letter-spacing="0.5" opacity="0.85">WATCH</text>
+</g>
+<g id="tut_t2_to">
+  <text x="0" y="0" font-family="Arial,Helvetica,sans-serif" font-weight="900" font-size="13" fill="#fff" letter-spacing="0.8">TUTORIALS</text>
+</g>
+</svg>
