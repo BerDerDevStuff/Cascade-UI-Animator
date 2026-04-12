@@ -266,6 +266,7 @@
                 <div class="nav-group-title">Editor</div>
                 <a href="#editor-concepts" class="nav-link" data-target="editor-concepts">Core Concepts</a>
                 <a href="#editor-features" class="nav-link" data-target="editor-features">Features</a>
+                <a href="#script-generator" class="nav-link" data-target="script-generator">Script Generator</a>
                 <a href="#editor-keybinds" class="nav-link" data-target="editor-keybinds">Keybinds</a>
 
                 <div class="nav-group-title">Guides</div>
@@ -299,13 +300,14 @@
                 </div>
 
                 <h2>Quick Start</h2>
-<pre><code>-- Require the service from your saved animation module
-local AnimationService = require(game.ReplicatedStorage.CascadeAnimations.AnimationService)
+<pre><code>-- Require the runtime engine
+local AnimationService = require(game.ReplicatedStorage.CascadeRuntimeEngine.AnimationService)
 
--- Load an animation config (exported from the editor)
+-- Service mode: play by name (v2.3.0)
+AnimationService.Play(button, "MyHoverAnim", { Reset = true })
+
+-- Service mode: play with config table
 local HoverAnim = require(game.ReplicatedStorage.CascadeAnimations.MyHoverAnim)
-
--- Service mode: fire and forget
 local signal = AnimationService.Play(button, HoverAnim, { Reset = true })
 signal:Connect(function(event, ...)
     if event == "Completed" then
@@ -317,7 +319,7 @@ signal:Connect(function(event, ...)
 end)
 
 -- Track mode: manual control
-local track = AnimationService.CreateTrack(button, HoverAnim)
+local track = AnimationService.CreateTrack(button, "MyHoverAnim")
 track.MarkerReached:Connect(function(name, data)
     print("Marker:", name)
 end)
@@ -335,7 +337,7 @@ track:Scrub(0) -- jump to start</code></pre>
                 <h1>AnimationService</h1>
                 <p class="section-intro">The top-level module. Manages the global render loop, active tracks, preprocessing, and provides both fire-and-forget and track-based APIs.</p>
 
-<pre><code>local AnimationService = require(path.to.AnimationService)</code></pre>
+<pre><code>local AnimationService = require(game.ReplicatedStorage.CascadeRuntimeEngine.AnimationService)</code></pre>
 
                 <h2>Methods</h2>
 
@@ -347,13 +349,23 @@ track:Scrub(0) -- jump to start</code></pre>
                     <table class="param-table">
                         <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
                         <tr><td>instance</td><td>Instance</td><td>The root GuiObject to animate</td></tr>
-                        <tr><td>config</td><td>AnimationConfig | ProcessedAnimation</td><td>Animation data (raw or preprocessed)</td></tr>
+                        <tr><td>config</td><td>string | AnimationConfig | ProcessedAnimation</td><td>Animation name (resolved from CascadeAnimations), raw config table, or preprocessed animation</td></tr>
                         <tr><td>options</td><td>TrackOptions?</td><td>Optional playback flags</td></tr>
                     </table>
-<pre><code>local signal = AnimationService.Play(button, HoverAnim, {
-    Reset = true,     -- restore properties when done
-    Loop = true,      -- loop forever
-    Reverse = false,  -- play forward
+                    <div class="tip-box tip-info" style="margin-top: 0.5rem;">
+                        <p><strong>Play by Name (v2.3.0)</strong></p>
+                        <p>Pass a string name instead of a config table. The engine resolves it from <code>CascadeAnimations</code> (or a custom folder set via <code>SetAnimationsFolder</code>). Supports subfolder paths like <code>"UI/FadeIn"</code>.</p>
+                    </div>
+<pre><code>-- Play by name (v2.3.0) — resolves from CascadeAnimations
+local signal = AnimationService.Play(button, "HoverAnim", {
+    Reset = true,
+    Loop = true,
+})
+
+-- Play with config table (classic)
+local signal = AnimationService.Play(button, HoverAnim, {
+    Reset = true,
+    Reverse = false,
 })
 
 signal:Connect(function(event, ...)
@@ -506,6 +518,42 @@ end</code></pre>
                     <span class="tag tag-method">Method</span>
                     <div class="method-sig">.Destroy()</div>
                     <p>Suspends the engine, destroys all active tracks, and clears all caches. Full teardown.</p>
+                </div>
+
+                <h2>Play by Name &amp; Sequences <span class="tag tag-method" style="font-size:0.6rem; vertical-align: middle;">v2.3.0</span></h2>
+
+                <div class="api-card">
+                    <span class="tag tag-method">Method</span>
+                    <div class="method-sig">.PlaySequence(name) &rarr; boolean</div>
+                    <p>Runs a standalone sequence module by name. Looks in <code>PlayerGui.CascadeSequences</code> at runtime (falls back to <code>StarterGui</code> in edit mode). Supports subfolder paths like <code>"UI/IntroSequence"</code>.</p>
+<pre><code>local ok = AnimationService.PlaySequence("IntroSequence")
+if not ok then
+    warn("Sequence not found")
+end</code></pre>
+                </div>
+
+                <div class="api-card">
+                    <span class="tag tag-method">Method</span>
+                    <div class="method-sig">.SetAnimationsFolder(folder?) / .GetAnimationsFolder() &rarr; Instance</div>
+                    <p>Override where Play-by-Name resolves animation configs. Defaults to <code>ReplicatedStorage.CascadeAnimations</code>. Pass <code>nil</code> to reset to default.</p>
+                </div>
+
+                <div class="api-card">
+                    <span class="tag tag-method">Method</span>
+                    <div class="method-sig">.InvalidateAnimationCache(name?)</div>
+                    <p>Clears the Play-by-Name lookup cache. Pass a name to clear a specific entry, or call with no arguments to clear all. Use this if you modify animation modules at runtime.</p>
+                </div>
+
+                <div class="api-card">
+                    <span class="tag tag-method">Method</span>
+                    <div class="method-sig">.SetSequencesFolder(folder?) / .GetSequencesFolder() &rarr; Instance</div>
+                    <p>Override where <code>PlaySequence</code> looks for sequence modules. Defaults to <code>PlayerGui.CascadeSequences</code> at runtime.</p>
+                </div>
+
+                <div class="api-card">
+                    <span class="tag tag-method">Method</span>
+                    <div class="method-sig">.InvalidateSequenceCache(name?)</div>
+                    <p>Clears the sequence lookup cache. Same pattern as <code>InvalidateAnimationCache</code>.</p>
                 </div>
 
                 <h2>TrackOptions</h2>
@@ -881,6 +929,9 @@ print("Track completed")</code></pre>
                 <p>Cascade supports all Roblox <code>EasingStyle</code> values: Linear, Quad, Cubic, Quart, Quint, Sine, Exponential, Circular, Elastic, Back, Bounce.</p>
                 <p>Directions: <code>In</code> (slow start), <code>Out</code> (slow end), <code>InOut</code> (slow both ends).</p>
 
+                <h3>Step Easing <span class="tag tag-method" style="font-size:0.6rem; vertical-align: middle;">v2.2.0</span></h3>
+                <p>The <strong>Step</strong> easing style holds the previous keyframe's value until the next keyframe is reached, then snaps instantly. This creates a "hold and jump" effect &mdash; useful for sprite-sheet-style animations, visibility toggles, or any property that should change discretely rather than smoothly. Works correctly in forward play, reverse, and preview scrubbing.</p>
+
                 <h2>Relative Mode</h2>
                 <p>Normally, keyframes store <strong>absolute</strong> values (e.g. <code>Size = {0.5, 0, 0.3, 0}</code>). In <strong style="color:var(--text-primary)">Relative Mode</strong>, keyframes store <strong>deltas</strong> (offsets from the instance's current value).</p>
                 <p>This is powerful for reusable effects. A "hover grow" animation that adds <code>+10px</code> to Size works on any button regardless of its base size.</p>
@@ -991,11 +1042,106 @@ track:Play()</code></pre>
                 <h2>Save &amp; Load</h2>
                 <p>Animations are serialized to ModuleScripts inside <code>ReplicatedStorage.CascadeAnimations</code>. The save/open dialogs let you name, browse, and overwrite animations. The exported format is a plain Luau table that you <code>require()</code> at runtime.</p>
 
+                <h2>Track Visibility <span class="tag tag-method" style="font-size:0.6rem; vertical-align: middle;">v2.2.0</span></h2>
+                <p>Each track row has an <strong>eye icon</strong> toggle. Click it to hide a track from preview and playback without deleting it. Hidden tracks retain their keyframes and can be re-enabled at any time.</p>
+
+                <h2>Hierarchy Visibility <span class="tag tag-method" style="font-size:0.6rem; vertical-align: middle;">v2.2.0</span></h2>
+                <p>Each object in the hierarchy browser has a visibility toggle. Turning it off collapses all of that object's tracks from the timeline view, reducing clutter when working with complex UI trees.</p>
+
+                <h2>Name on Creation <span class="tag tag-method" style="font-size:0.6rem; vertical-align: middle;">v2.2.0</span></h2>
+                <p>When you create a new animation or start a fresh session, you're prompted to name it upfront. The name is shown in the toolbar and used as the default filename when saving.</p>
+
+                <h2>Unsaved Changes <span class="tag tag-method" style="font-size:0.6rem; vertical-align: middle;">v2.2.0+</span></h2>
+                <p>An <strong>asterisk (*)</strong> appears next to the animation name when there are unsaved edits. Closing the editor or creating a new animation with unsaved changes prompts a <strong>Save / Discard / Cancel</strong> confirmation dialog.</p>
+
+                <h2>Zoom Toward Mouse <span class="tag tag-method" style="font-size:0.6rem; vertical-align: middle;">v2.3.0</span></h2>
+                <p><kbd>Ctrl</kbd>+Scroll now zooms the timeline centered on the mouse cursor position. The frame under your cursor stays anchored, making it easy to zoom into a specific area without losing your place.</p>
+
                 <h2>Themes</h2>
                 <p>The editor ships with multiple themes: Dark, Light, Blue, and Orange. Themes are managed by the ThemeManager and affect all UI components.</p>
 
                 <h2>Customizable Keybinds</h2>
                 <p>Every action can be rebound in the keybind settings. Bindings persist across Studio sessions via <code>plugin:SetSetting()</code>. You can assign multiple keys to the same action, add modifier keys (Shift, Ctrl, Alt), and reset to defaults.</p>
+            </section>
+
+            <!-- ==================== SCRIPT GENERATOR ==================== -->
+            <section id="script-generator" class="content-section hidden">
+                <h1>Script Generator <span class="tag tag-method" style="font-size:0.6rem; vertical-align: middle;">v2.3.0</span></h1>
+                <p class="section-intro">Turn your saved animations into runnable code without writing a single line. Open via <strong>Menu &rarr; Script &rarr; Create Animation Script</strong>.</p>
+
+                <h2>How It Works</h2>
+                <p>The Script Generator opens as a separate docked panel. You build a step-by-step sequence of animation actions, then click <strong>Generate</strong> to create a ready-to-run script. There are two modes:</p>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem; margin: 0.65rem 0 1rem;">
+                    <div class="api-card">
+                        <h3 style="color:var(--green); margin-top:0;">Triggered Mode</h3>
+                        <p style="font-size:0.85rem;">Pick a UI object and an event (Activated, MouseEnter, TouchTap, etc.). The generator creates a <code>LocalScript</code> under your ScreenGui that wires up the event connection and runs your sequence on trigger.</p>
+                    </div>
+                    <div class="api-card">
+                        <h3 style="color:var(--accent); margin-top:0;">Standalone Mode</h3>
+                        <p style="font-size:0.85rem;">Creates a reusable <code>ModuleScript</code> in <code>StarterGui.CascadeSequences</code> with a <code>Play()</code> function. Call it from any script or via <code>AnimationService.PlaySequence("Name")</code>.</p>
+                    </div>
+                </div>
+
+                <h2>Step Types</h2>
+                <p>Each sequence is built from an ordered list of steps. Add, remove, and reorder them freely.</p>
+
+                <div class="api-card">
+                    <table class="param-table">
+                        <tr><th>Step</th><th>Color</th><th>Description</th></tr>
+                        <tr><td>Play</td><td style="color:var(--accent);">Blue</td><td>Play an animation on one or more targets. Supports all TrackOptions (Loop, Reverse, Stagger, etc.).</td></tr>
+                        <tr><td>Wait</td><td style="color:var(--orange);">Orange</td><td>Pause execution for a specified duration (seconds).</td></tr>
+                        <tr><td>Pause</td><td style="color:var(--purple);">Purple</td><td>Pause a running animation on targets (by animation name).</td></tr>
+                        <tr><td>Stop</td><td style="color:var(--red);">Red</td><td>Stop all active animations on targets.</td></tr>
+                    </table>
+                </div>
+
+                <h2>Quick Actions</h2>
+                <p>Each Play, Pause, and Stop step card has a <strong>+</strong> button in the banner. Clicking it shows complementary step types pre-filled with the same targets and animation &mdash; one click to add a matching Pause, Stop, or Wait step directly below.</p>
+
+                <h2>Generated Code</h2>
+                <p>The generator handles all the boilerplate: requiring AnimationService, creating ObjectValue references, resolving instance paths at runtime, and wiring up event connections.</p>
+
+                <h3>Triggered Example</h3>
+<pre><code>-- Auto-generated by Cascade UI Animator
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local AnimationService = require(ReplicatedStorage.CascadeRuntimeEngine.AnimationService)
+
+local trigger = script.Parent
+local target = script.Parent.Parent.ContentFrame
+
+trigger.Activated:Connect(function()
+    AnimationService.Play(target, "FadeIn", { Reset = true })
+    task.wait(0.5)
+    AnimationService.Play(target, "SlideUp")
+end)</code></pre>
+
+                <h3>Standalone Example</h3>
+<pre><code>-- Auto-generated by Cascade UI Animator
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local AnimationService = require(ReplicatedStorage.CascadeRuntimeEngine.AnimationService)
+
+local module = {}
+
+function module.Play()
+    local target = waitForValue(script:WaitForChild("Target_1_panel"))
+
+    AnimationService.Play(target, "FadeIn", { Loop = true })
+    task.wait(2)
+    AnimationService.Stop(target)
+end
+
+return module</code></pre>
+
+                <div class="tip-box tip-info">
+                    <p><strong>Instance references</strong></p>
+                    <p>The generator stores target instances as <code>ObjectValue</code> children on the script. This means references survive instance renames and hierarchy changes. Standalone sequences live in <code>StarterGui</code> so their ObjectValues clone correctly to <code>PlayerGui</code> at runtime.</p>
+                </div>
+
+                <div class="tip-box tip-warn">
+                    <p><strong>Runtime engine required</strong></p>
+                    <p>Generated scripts require the Cascade runtime engine. If it's not installed, the generator will prompt you to install it automatically.</p>
+                </div>
             </section>
 
             <!-- ==================== KEYBINDS ==================== -->
