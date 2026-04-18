@@ -1,0 +1,5 @@
+# Cascade Runtime — author-only folder.
+# Any PR modifying /runtime/ requires review from @BerDerDevStuff.
+# PRs from external contributors touching this path will be closed.
+
+/runtime/ @BerDerDevStuff
