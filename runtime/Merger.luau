@@ -1,3 +1,6 @@
+--!native
+--!optimize 2
+
 local Merger = {}
 
 function Merger.parseFullPath(fullPath: string)
@@ -46,10 +49,9 @@ function Merger.extractSub(value: any, subPath: {string}): any
 		if k == "Scale" then return value.Scale elseif k == "Offset" then return value.Offset end
 	elseif t == "UDim2" then
 		local axis, dim = subPath[1], subPath[2]
-		if axis == "X" then
-			if dim == "Scale" then return value.X.Scale elseif dim == "Offset" then return value.X.Offset else return value.X end
-		elseif axis == "Y" then
-			if dim == "Scale" then return value.Y.Scale elseif dim == "Offset" then return value.Y.Offset else return value.Y end
+		local udim = if axis == "X" then value.X elseif axis == "Y" then value.Y else nil
+		if udim then
+			if dim == "Scale" then return udim.Scale elseif dim == "Offset" then return udim.Offset else return udim end
 		end
 	end
 	return value
@@ -93,11 +95,13 @@ function Merger.merge(currentValue: any, subPath: {string}, targetSubValue: any)
 			local y = (axis == "Y") and targetSubValue or currentValue.Y
 			return UDim2.new(x.Scale, x.Offset, y.Scale, y.Offset)
 		else
-			local xs = (axis == "X" and dim == "Scale") and targetSubValue or currentValue.X.Scale
-			local xo = (axis == "X" and dim == "Offset") and targetSubValue or currentValue.X.Offset
+			-- Read each axis once: every .X / .Y read allocates a UDim.
+			local cx, cy = currentValue.X, currentValue.Y
+			local xs = (axis == "X" and dim == "Scale") and targetSubValue or cx.Scale
+			local xo = (axis == "X" and dim == "Offset") and targetSubValue or cx.Offset
 
-			local ys = (axis == "Y" and dim == "Scale") and targetSubValue or currentValue.Y.Scale
-			local yo = (axis == "Y" and dim == "Offset") and targetSubValue or currentValue.Y.Offset
+			local ys = (axis == "Y" and dim == "Scale") and targetSubValue or cy.Scale
+			local yo = (axis == "Y" and dim == "Offset") and targetSubValue or cy.Offset
 
 			return UDim2.new(xs, xo, ys, yo)
 		end

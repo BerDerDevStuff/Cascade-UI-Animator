@@ -50,14 +50,28 @@ export type TrackOptions = {
 	DeleteOnComplete: boolean?,
 }
 
+-- One animated path on one target (a track's channel). The runtime evaluates it in place each
+-- frame; Seg/T1/T2/K1/K2/Ease cache the current keyframe segment, Slot is the property slot.
 export type ActiveTrack = {
 	Data: ProcessedTrack,
 	Target: Instance,
-	BaseProp: string, 
-	Setter: (any) -> (),    
-	BaseValue: any,        
-	Cursor: number,
-	CurrentLerp: ((number) -> any)? 
+	BaseProp: string,
+	Root: Instance,
+	Offset: number?,
+	Keyframes: {Keyframe},
+	SubPath: {string},
+	HasSub: boolean,
+	IsRelative: boolean,
+	Seg: number,
+	T1: number,
+	T2: number,
+	K1: Keyframe?,
+	K2: Keyframe?,
+	Ease: ((number) -> number)?,
+	Value: any,
+	Held: any,
+	Slot: any,
+	Memo: { Gen: number, Time: number, Value: any }?, -- batches: shared per path
 }
 
 export type AnimTrack = {
@@ -87,7 +101,8 @@ export type AnimTrack = {
 	IsValid: (self: AnimTrack) -> boolean,
 	Prune: (self: AnimTrack, instance: Instance) -> (),
 
-	_Update: (self: AnimTrack, now: number) -> { [Instance]: { [string]: any } }?
+	-- true when the channels were evaluated this frame (their Value fields are current)
+	_Update: (self: AnimTrack, now: number) -> boolean?
 }
 
 export type BatchedAnimTrack = {
@@ -118,7 +133,7 @@ export type BatchedAnimTrack = {
 	IsValid: (self: BatchedAnimTrack) -> boolean,
 	Prune: (self: BatchedAnimTrack, instance: Instance) -> (),
 
-	_Update: (self: BatchedAnimTrack, now: number) -> { [Instance]: { [string]: any } }?
+	_Update: (self: BatchedAnimTrack, now: number) -> boolean?
 }
 
 return nil

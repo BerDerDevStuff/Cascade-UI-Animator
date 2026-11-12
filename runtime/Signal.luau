@@ -58,12 +58,24 @@ function Signal:Connect(callback)
 	}
 end
 
+-- Runtime-internal listener, called inline instead of in a new thread. Only for handlers that never
+-- yield or error (the runtime's proxy forwarders); listener order is unchanged.
+function Signal:_ConnectDirect(callback)
+	local connection = self:Connect(callback)
+	self._head._direct = true
+	return connection
+end
+
 function Signal:Fire(...)
 	local node = self._head
 	while node do
-		local nextNode = node._next 
+		local nextNode = node._next
 		if node.Connected then
-			task.spawn(node._callback, ...)
+			if node._direct then
+				node._callback(...)
+			else
+				task.spawn(node._callback, ...)
+			end
 		end
 		node = nextNode
 	end

@@ -329,7 +329,7 @@ track:Pause()
 track:Scrub(0) -- jump to start</code></pre>
 
                 <h2>How It Works</h2>
-                <p>Cascade blends multiple animations on the same instance additively &mdash; a hover, a click, and a shake can all run simultaneously without flickering or overwriting each other. Use <code>Reset = true</code> to automatically restore properties to their original values when an animation ends.</p>
+                <p>Cascade blends multiple animations on the same instance &mdash; a hover, a click, and a shake can all run simultaneously without flickering or overwriting each other, as long as they are relative tracks or animate different components (e.g. <code>Position.X.Offset</code> and <code>Position.Y.Offset</code>). Two absolute animations on the same property do not mix: the most recently started one wins. Use <code>Reset = true</code> to automatically restore properties to their original values when an animation ends.</p>
             </section>
 
             <!-- ==================== ANIMATIONSERVICE ==================== -->
@@ -345,7 +345,12 @@ track:Scrub(0) -- jump to start</code></pre>
                 <div class="api-card">
                     <span class="tag tag-method">Method</span>
                     <div class="method-sig">.Play(instance, config, options?) &rarr; Signal</div>
-                    <p>Plays an animation on a single instance. If a track for the same instance+config already exists, it reuses it (resetting time). Returns a <code>Signal</code> proxy that fires <code>"Completed"</code>, <code>"Looped"</code>, <code>"Cancelled"</code>, or <code>"MarkerReached"</code>.</p>
+                    <p>Plays an animation on a single instance. If a track for the same instance+config already exists, it reuses it (resetting time). Returns a <code>Signal</code> proxy that fires <code>"Completed"</code>, <code>"Looped"</code>, <code>"Cancelled"</code>, or <code>"MarkerReached"</code>. Returns <code>nil</code> if an animation name is not found.</p>
+                    <div class="tip-box tip-info" style="margin-top: 0.5rem;">
+                        <p><strong>Replay takes over <span class="tag tag-method" style="font-size:0.6rem; vertical-align: middle;">v2.3.3</span></strong></p>
+                        <p>Calling <code>Play</code> again with the same animation (same table or same name) on the same instance takes over that animation and restarts it. The signal returned by the earlier call receives <code>"Cancelled"</code> once and nothing after that, so code waiting on it never hangs. Replaying in the other direction (e.g. <code>Reverse = true</code> on mouse leave) continues from the current point instead of snapping.</p>
+                        <p>A <code>Delay</code> saved in the animation is honoured; pass <code>Delay = 0</code> to start right away.</p>
+                    </div>
                     <table class="param-table">
                         <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
                         <tr><td>instance</td><td>Instance</td><td>The root GuiObject to animate</td></tr>
@@ -382,7 +387,7 @@ end)</code></pre>
                 <div class="api-card">
                     <span class="tag tag-method">Method</span>
                     <div class="method-sig">.PlayBatch(instances, config, options?) &rarr; Signal</div>
-                    <p>Plays the same animation on multiple instances using a single <code>BatchedAnimTrack</code>. Supports <code>Stagger</code> for cascading delays between items.</p>
+                    <p>Plays the same animation on multiple instances using a single <code>BatchedAnimTrack</code>. Supports <code>Stagger</code> for cascading delays between items. Replaying, the saved <code>Delay</code> and the <code>"Cancelled"</code> sent to an earlier signal work as for <code>Play</code>; replaying the same set of instances in a new order staggers them in that order.</p>
 <pre><code>local buttons = { btn1, btn2, btn3, btn4 }
 local signal = AnimationService.PlayBatch(buttons, FadeIn, {
     Stagger = 0.05,  -- 50ms delay between each item
@@ -401,7 +406,7 @@ end)</code></pre>
                 <div class="api-card">
                     <span class="tag tag-method">Method</span>
                     <div class="method-sig">.CreateTrack(instance, config, options?) &rarr; AnimTrack</div>
-                    <p>Creates an <code>AnimTrack</code> for manual control. Does <strong>not</strong> auto-play. You must call <code>:Play()</code> on the returned track.</p>
+                    <p>Creates an <code>AnimTrack</code> for manual control. Does <strong>not</strong> auto-play. You must call <code>:Play()</code> on the returned track. Unlike <code>Play</code>, it ignores a <code>Delay</code> saved in the animation: pass <code>options.Delay</code> if you want one. The same applies to <code>CreateBatchedTrack</code>.</p>
 <pre><code>local track = AnimationService.CreateTrack(panel, SlideIn)
 track.Completed:Connect(function()
     print("Slide finished")
@@ -430,7 +435,7 @@ track:Play()</code></pre>
                 <div class="api-card">
                     <span class="tag tag-method">Method</span>
                     <div class="method-sig">.Resume(instance, config)</div>
-                    <p>Resumes a paused animation on the given instance.</p>
+                    <p>Resumes a paused animation on the given instance. Does nothing on an animation that has already finished (use <code>Play</code> to play it again).</p>
                 </div>
 
                 <div class="api-card">
@@ -497,8 +502,31 @@ AnimationService.ClearInstance(menuFrame)</code></pre>
 
 -- Now use the processed result for many instances
 for _, item in ipairs(items) do
-    AnimationService.Play(item, processed, { Stagger = 0.02 })
+    AnimationService.Play(item, processed)
 end</code></pre>
+                </div>
+
+                <!-- Validate -->
+                <div class="api-card">
+                    <span class="tag tag-method">Method</span> <span class="tag tag-method">v2.3.3</span>
+                    <div class="method-sig">.Validate(config) &rarr; (boolean, {string})</div>
+                    <p>Checks an animation and returns <code>ok, errors</code>: <code>ok</code> is <code>true</code> when <code>errors</code> is empty, otherwise <code>errors</code> lists every problem as a readable sentence. Use it in tests, tools, or after writing an animation file by hand (or with an AI agent). It never changes the config, and <code>Play</code> never calls it.</p>
+                    <table class="param-table">
+                        <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+                        <tr><td>config</td><td>string | AnimationConfig</td><td>A raw config table, or an animation name resolved from the animations folder like <code>Play</code> does. A preprocessed animation is rejected.</td></tr>
+                    </table>
+                    <p>It checks what the runtime reads: <code>Length</code>, <code>Loop</code> and <code>Delay</code> types; track paths (empty parts, property names, sub-paths the runtime can animate); keyframe <code>Time</code> (a number, from 0 to <code>Length</code>, sorted); <code>Value</code> (present, a supported type, the same type as the track's first keyframe, the right type for a sub-path); <code>Easing</code> / <code>Direction</code> (an <code>Enum.EasingStyle</code> the runtime supports, or <code>"Step"</code>); <code>Settings</code> entries without a matching track and <code>IsRelative</code> on values that cannot be added; events (<code>Name</code>, and <code>Time</code> from 0 to <code>Length</code>).</p>
+<pre><code>local ok, errors = AnimationService.Validate("Toast/SlideIn")
+if not ok then
+    for _, message in errors do
+        warn(message)
+    end
+end
+-- Example messages:
+-- Tracks['Position'] keyframe 3: Time 1.2 is after Length 1.0
+-- Tracks['Size.X.Scale'] keyframe 1: Value is UDim2, but the sub-path '.X.Scale' takes a number
+-- Tracks['Header.Size']: '.Size' is not a sub-path the runtime can animate (...)
+-- Events[1] 'Hit': Time 2.0 is outside [0, Length 1.0]</code></pre>
                 </div>
 
                 <!-- Utility -->
@@ -562,13 +590,13 @@ end</code></pre>
                 <div class="api-card">
                     <table class="param-table">
                         <tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr>
-                        <tr><td>Reset</td><td>boolean</td><td>false</td><td>When the track is cleaned up or removed by <code>ClearInstance</code>, all properties touched by the animation are restored to the values they had before playback started. Use this for effects that should leave no trace.</td></tr>
-                        <tr><td>ResetToStart</td><td>boolean</td><td>false</td><td>When <code>:Stop()</code> is called, the track scrubs to time 0 before stopping. The instance snaps to its frame-0 state rather than freezing at whatever time it was at.</td></tr>
+                        <tr><td>Reset</td><td>boolean</td><td>false</td><td>Restores all properties touched by the animation to the values they had before this run started: when the animation finishes naturally (the final frame is written, then restored on the next frame <span class="tag tag-method" style="font-size:0.6rem; vertical-align: middle;">v2.3.3</span>), and when the track is destroyed or removed by <code>ClearInstance</code>. Not on <code>:Stop()</code>, and never for <code>Loop = true</code>, which does not finish. Use this for effects that should leave no trace.</td></tr>
+                        <tr><td>ResetToStart</td><td>boolean</td><td>false</td><td>When <code>:Stop()</code> is called, the track scrubs to time 0 before stopping. The instance snaps to its frame-0 state rather than freezing at whatever time it was at. Does nothing on a natural finish.</td></tr>
                         <tr><td>Reverse</td><td>boolean</td><td>false</td><td>Plays the animation backwards (speed is set to <code>-1</code>). The track starts at the end and moves toward frame 0. Ideal for "undo" transitions like mouse-leave after a hover.</td></tr>
-                        <tr><td>Loop</td><td>boolean | number</td><td>config value</td><td>Overrides the loop setting baked into the animation config. Pass <code>true</code> for infinite looping, <code>false</code> to play once, or a number (e.g. <code>3</code>) to loop exactly that many times.</td></tr>
-                        <tr><td>Delay</td><td>number</td><td>0</td><td>Seconds to wait after <code>:Play()</code> before the animation actually begins. The track is in a "waiting" state during the delay &mdash; it won't evaluate or modify properties until the delay expires.</td></tr>
+                        <tr><td>Loop</td><td>boolean | number</td><td>config value</td><td>Overrides the loop setting baked into the animation config. Pass <code>true</code> for infinite looping, <code>false</code> to play once, or a number of repeats: <code>3</code> plays the animation 4 times (3 <code>Looped</code>, then one <code>Completed</code>).</td></tr>
+                        <tr><td>Delay</td><td>number</td><td>config value</td><td>Seconds to wait after <code>:Play()</code> before the animation actually begins. The track is in a "waiting" state during the delay &mdash; it won't evaluate or modify properties until the delay expires. <code>Play</code> and <code>PlayBatch</code> use the animation's saved <code>Delay</code> when this option is not given <span class="tag tag-method" style="font-size:0.6rem; vertical-align: middle;">v2.3.3</span>; <code>CreateTrack</code> and <code>CreateBatchedTrack</code> use only this option (default 0). Pausing during the delay keeps the rest of it.</td></tr>
                         <tr><td>Stagger</td><td>number</td><td>0</td><td><strong>BatchedAnimTrack only.</strong> Delay in seconds between each instance's start time. With 4 instances and <code>Stagger = 0.05</code>, the 4th instance starts 150ms after the 1st. The total duration extends by <code>(count - 1) * stagger</code>.</td></tr>
-                        <tr><td>DeleteOnComplete</td><td>boolean</td><td>false</td><td>Automatically calls <code>:Destroy()</code> on the track when it finishes. Useful for one-shot animations where you don't need the track reference afterwards. Prevents track accumulation.</td></tr>
+                        <tr><td>DeleteOnComplete</td><td>boolean</td><td>false</td><td>Automatically calls <code>:Destroy()</code> on the <strong>track</strong> when it finishes or is stopped. The animated instance is never destroyed. Useful for one-shot animations where you don't need the track reference afterwards. Prevents track accumulation.</td></tr>
                     </table>
                 </div>
 
@@ -589,6 +617,17 @@ AnimationService.PlayBatch(items, SlideIn, {
     Stagger = 0.04,
     Delay = 0.2,
 })</code></pre>
+
+                <h2>Playback Behaviour <span class="tag tag-method" style="font-size:0.6rem; vertical-align: middle;">v2.3.3</span></h2>
+                <p>How the runtime treats a running animation. These rules apply to <code>Play</code> and <code>PlayBatch</code>; tracks from <code>CreateTrack</code> follow rules 1, 4, 5 and 6.</p>
+                <ul class="feature-list">
+                    <li><strong>1. Finished animations let go.</strong> A finished animation writes its final frame once, then goes dormant and stops writing (like TweenService). Your scripts and tweens can change the property afterwards.</li>
+                    <li><strong>2. Playing again takes over.</strong> <code>Play</code> again with the same animation on the same instance restarts it; the signal from the earlier call receives <code>"Cancelled"</code> once and then nothing, so code waiting on it never hangs.</li>
+                    <li><strong>3. The saved Delay is honoured</strong> by <code>Play</code> and <code>PlayBatch</code>; <code>options.Delay</code> replaces it. <code>CreateTrack</code> ignores it.</li>
+                    <li><strong>4. Relative mode starts from the current value.</strong> Deltas are added to the property's value at the moment the animation is played, not to a value cached from the first time the instance was animated.</li>
+                    <li><strong>5. Reset restores on a natural finish.</strong> With <code>Reset = true</code>, a non-looping animation writes its final frame, then restores the values from before that run, then goes dormant.</li>
+                    <li><strong>6. Completed fires once.</strong> <code>Completed</code> fires when the whole animation is done (after the last loop, never for <code>Loop = true</code>); <code>Looped</code> fires every cycle.</li>
+                </ul>
             </section>
 
             <!-- ==================== ANIMTRACK ==================== -->
@@ -607,7 +646,7 @@ AnimationService.PlayBatch(items, SlideIn, {
                         <tr><td>Speed</td><td>number</td><td>Playback speed multiplier (negative = reverse)</td></tr>
                         <tr><td>Duration</td><td>number</td><td>Total length of the animation in seconds</td></tr>
                         <tr><td>AutoDestroy</td><td>boolean</td><td>If true, track self-destructs on completion</td></tr>
-                        <tr><td>IsFinished</td><td>boolean</td><td>True when animation has reached the end</td></tr>
+                        <tr><td>IsFinished</td><td>boolean</td><td>True when animation has reached the end. A finished track is dormant and its <code>State</code> is <code>"Suspended"</code> (v2.3.3; it was <code>"Paused"</code>), so use <code>IsFinished</code> to detect completion.</td></tr>
                         <tr><td>IsDestroyed</td><td>boolean</td><td>True after Destroy() has been called</td></tr>
                     </table>
                 </div>
@@ -617,19 +656,19 @@ AnimationService.PlayBatch(items, SlideIn, {
                 <div class="api-card">
                     <span class="tag tag-method">Method</span>
                     <div class="method-sig">:Play()</div>
-                    <p>Starts or resumes playback from the current time. Respects the <code>Delay</code> option on first play.</p>
+                    <p>Starts or resumes playback from the current time. Each new run waits for the <code>Delay</code> option (the track's own option; a saved <code>Delay</code> in the animation is not used here). A resume does not wait again, except for the part of the delay that was left when it was paused. On a finished track, <code>:Play()</code> plays it again from the start, like <code>Tween:Play()</code> <span class="tag tag-method" style="font-size:0.6rem; vertical-align: middle;">v2.3.3</span>.</p>
                 </div>
 
                 <div class="api-card">
                     <span class="tag tag-method">Method</span>
                     <div class="method-sig">:Pause()</div>
-                    <p>Freezes playback at the current time. The track stays active and can be resumed with <code>:Play()</code>.</p>
+                    <p>Freezes playback at the current time. The track stays active and can be resumed with <code>:Play()</code>. Only acts on a playing track.</p>
                 </div>
 
                 <div class="api-card">
                     <span class="tag tag-method">Method</span>
                     <div class="method-sig">:Stop()</div>
-                    <p>Stops playback, resets time to 0, and fires the <code>Cancelled</code> signal. If <code>ResetToStart</code> was set, scrubs to frame 0 first. If <code>AutoDestroy</code> is true, the track self-destructs.</p>
+                    <p>Stops playback, rewinds to the start of its direction (time 0, or the end when playing in reverse), and fires the <code>Cancelled</code> signal. The properties stay where they are. If <code>ResetToStart</code> was set, scrubs to frame 0 first so the instance shows its frame-0 state. <code>Reset</code> does not act on <code>:Stop()</code>. If <code>AutoDestroy</code> is true, the track self-destructs.</p>
                 </div>
 
                 <div class="api-card">
@@ -646,7 +685,7 @@ track:Scrub(15 / 30)</code></pre>
                 <div class="api-card">
                     <span class="tag tag-method">Method</span>
                     <div class="method-sig">:SetSpeed(speed: number)</div>
-                    <p>Changes playback speed. Use <code>-1</code> for reverse, <code>0.5</code> for half speed, <code>2</code> for double speed.</p>
+                    <p>Changes playback speed. Use <code>-1</code> for reverse, <code>0.5</code> for half speed, <code>2</code> for double speed. <code>0</code> holds the playhead; a held track stops writing until its speed changes, like a paused track.</p>
 <pre><code>track:SetSpeed(-1)  -- play in reverse
 track:SetSpeed(0.5) -- slow motion</code></pre>
                 </div>
@@ -668,7 +707,7 @@ track:SetSpeed(0.5) -- slow motion</code></pre>
                 <div class="api-card">
                     <span class="tag tag-event">Event</span>
                     <div class="method-sig">.Completed &rarr; Signal</div>
-                    <p>Fires when the animation reaches the end (or the start, if playing in reverse) and has no remaining loops.</p>
+                    <p>Fires once, when the animation reaches the end (or the start, if playing in reverse) and has no remaining loops. Never fires for <code>Loop = true</code>. After it, the track has written its final frame and goes dormant (<code>IsFinished = true</code>).</p>
                 </div>
 
                 <div class="api-card">
@@ -680,7 +719,7 @@ track:SetSpeed(0.5) -- slow motion</code></pre>
                 <div class="api-card">
                     <span class="tag tag-event">Event</span>
                     <div class="method-sig">.Cancelled &rarr; Signal</div>
-                    <p>Fires when <code>:Stop()</code> is called manually.</p>
+                    <p>Fires when <code>:Stop()</code> is called manually. (The signal returned by <code>AnimationService.Play</code> also receives <code>"Cancelled"</code> when a newer <code>Play</code> of the same animation takes over.)</p>
                 </div>
 
                 <div class="api-card">
@@ -695,7 +734,7 @@ end)</code></pre>
                 </div>
 
                 <h2>Full Example</h2>
-<pre><code>local AnimationService = require(game.ReplicatedStorage.CascadeAnimations.AnimationService)
+<pre><code>local AnimationService = require(game.ReplicatedStorage.CascadeRuntimeEngine.AnimationService)
 local SlideAnim = require(game.ReplicatedStorage.CascadeAnimations.SlideIn)
 
 local track = AnimationService.CreateTrack(menuFrame, SlideAnim, {
@@ -829,8 +868,8 @@ print("Track completed")</code></pre>
                     <table class="param-table">
                         <tr><th>Field</th><th>Type</th><th>Description</th></tr>
                         <tr><td>Length</td><td>number</td><td>Total duration in seconds</td></tr>
-                        <tr><td>Loop</td><td>boolean | number?</td><td>Loop forever (<code>true</code>), a specific count, or don't loop (<code>false</code>)</td></tr>
-                        <tr><td>Delay</td><td>number?</td><td>Delay before playback starts (seconds)</td></tr>
+                        <tr><td>Loop</td><td>boolean | number?</td><td>Loop forever (<code>true</code>), a number of repeats (<code>2</code> plays 3 times), or don't loop (<code>false</code>)</td></tr>
+                        <tr><td>Delay</td><td>number?</td><td>Delay before playback starts (seconds). Honoured by <code>Play</code> / <code>PlayBatch</code> (v2.3.3); <code>CreateTrack</code> ignores it</td></tr>
                         <tr><td>Tracks</td><td>{[string]: {Keyframe}}</td><td>Map of track path to keyframe array</td></tr>
                         <tr><td>Settings</td><td>{[string]: any}?</td><td>Per-track settings (e.g. <code>IsRelative</code>)</td></tr>
                         <tr><td>Events</td><td>{AnimationEvent}?</td><td>Timeline event markers</td></tr>
@@ -844,8 +883,8 @@ print("Track completed")</code></pre>
                         <tr><th>Field</th><th>Type</th><th>Description</th></tr>
                         <tr><td>Time</td><td>number</td><td>Position in seconds</td></tr>
                         <tr><td>Value</td><td>any</td><td>The property value at this point</td></tr>
-                        <tr><td>Easing</td><td>EasingStyle?</td><td>Interpolation curve (e.g. <code>Enum.EasingStyle.Quad</code>)</td></tr>
-                        <tr><td>Direction</td><td>EasingDirection?</td><td>Easing direction (In, Out, InOut)</td></tr>
+                        <tr><td>Easing</td><td>EasingStyle | "Step"?</td><td>Interpolation curve (e.g. <code>Enum.EasingStyle.Quad</code>, default Quad) of the segment from the previous keyframe <strong>into this one</strong>. The first keyframe's easing is never used</td></tr>
+                        <tr><td>Direction</td><td>EasingDirection?</td><td>Easing direction (In, Out, InOut; default Out) of the same segment</td></tr>
                     </table>
                 </div>
 
@@ -854,13 +893,13 @@ print("Track completed")</code></pre>
                 <div class="api-card">
                     <table class="param-table">
                         <tr><th>Field</th><th>Type</th><th>Description</th></tr>
-                        <tr><td>Delay</td><td>number?</td><td>Seconds to wait before starting</td></tr>
+                        <tr><td>Delay</td><td>number?</td><td>Seconds to wait before starting (replaces the config's Delay)</td></tr>
                         <tr><td>Loop</td><td>boolean | number?</td><td>Override the config's loop setting</td></tr>
                         <tr><td>Stagger</td><td>number?</td><td>Delay between batch instances (BatchedAnimTrack only)</td></tr>
-                        <tr><td>Reset</td><td>boolean?</td><td>Restore properties to pre-animation values on cleanup</td></tr>
+                        <tr><td>Reset</td><td>boolean?</td><td>Restore properties to their values from before the run, on a natural finish and on cleanup (not on Stop)</td></tr>
                         <tr><td>ResetToStart</td><td>boolean?</td><td>Scrub to frame 0 on Stop</td></tr>
                         <tr><td>Reverse</td><td>boolean?</td><td>Play the animation backwards</td></tr>
-                        <tr><td>DeleteOnComplete</td><td>boolean?</td><td>Auto-destroy the track when it finishes</td></tr>
+                        <tr><td>DeleteOnComplete</td><td>boolean?</td><td>Auto-destroy the track (not the instance) when it finishes or is stopped</td></tr>
                     </table>
                 </div>
 
@@ -891,6 +930,7 @@ print("Track completed")</code></pre>
 "ContentFrame/Size.X.Scale"
 "ContentFrame/Position.Y.Offset"</code></pre>
                 <p>The engine resolves instance paths via <code>FindFirstChild</code> from the root. Every sibling must have a unique name.</p>
+                <p>Children are always separated with <code>/</code>, never <code>.</code>: <code>"Header.Size"</code> is read as a property named <code>Header</code> on the root and the track is skipped with a warning. Use <code>"Header/Size"</code>. <code>AnimationService.Validate</code> reports such paths.</p>
             </section>
 
             <!-- ==================== EDITOR CONCEPTS ==================== -->
@@ -925,18 +965,18 @@ print("Track completed")</code></pre>
                 <p>When you change FPS in Animation Settings, TotalFrames stays the same and the duration adjusts. When you change TotalFrames, the duration adjusts too.</p>
 
                 <h2>Easing</h2>
-                <p>Each keyframe has an <strong style="color:var(--text-primary)">easing style</strong> and <strong style="color:var(--text-primary)">direction</strong> that controls how the value transitions <em>to the next</em> keyframe.</p>
-                <p>Cascade supports all Roblox <code>EasingStyle</code> values: Linear, Quad, Cubic, Quart, Quint, Sine, Exponential, Circular, Elastic, Back, Bounce.</p>
+                <p>Each keyframe has an <strong style="color:var(--text-primary)">easing style</strong> and <strong style="color:var(--text-primary)">direction</strong> that controls how the value transitions <em>into this</em> keyframe from the previous one. The first keyframe's easing is never used.</p>
+                <p>Cascade supports these Roblox <code>EasingStyle</code> values: Linear, Quad, Cubic, Quart, Quint, Sine, Exponential, Circular, Elastic, Back, Bounce. Styles the runtime cannot evaluate (such as Bezier or Spring) fall back to Linear with a warning.</p>
                 <p>Directions: <code>In</code> (slow start), <code>Out</code> (slow end), <code>InOut</code> (slow both ends).</p>
 
                 <h3>Step Easing <span class="tag tag-method" style="font-size:0.6rem; vertical-align: middle;">v2.2.0</span></h3>
-                <p>The <strong>Step</strong> easing style holds the previous keyframe's value until the next keyframe is reached, then snaps instantly. This creates a "hold and jump" effect &mdash; useful for sprite-sheet-style animations, visibility toggles, or any property that should change discretely rather than smoothly. Works correctly in forward play, reverse, and preview scrubbing.</p>
+                <p>The <strong>Step</strong> easing style (the string <code>"Step"</code>), set on a keyframe, holds the previous keyframe's value until this keyframe's time, then snaps instantly. This creates a "hold and jump" effect &mdash; useful for sprite-sheet-style animations, visibility toggles, or any property that should change discretely rather than smoothly. Works correctly in forward play, reverse, and preview scrubbing.</p>
 
                 <h2>Relative Mode</h2>
                 <p>Normally, keyframes store <strong>absolute</strong> values (e.g. <code>Size = {0.5, 0, 0.3, 0}</code>). In <strong style="color:var(--text-primary)">Relative Mode</strong>, keyframes store <strong>deltas</strong> (offsets from the instance's current value).</p>
                 <p>This is powerful for reusable effects. A "hover grow" animation that adds <code>+10px</code> to Size works on any button regardless of its base size.</p>
                 <div class="tip-box tip-info">
-                    <p><strong>How it works:</strong> The engine captures the property's value before the animation starts (the "base state"), then adds the keyframe delta on top. Multiple relative animations stack additively.</p>
+                    <p><strong>How it works:</strong> The engine takes the property's value at the moment the animation is played (the "base state"; since v2.3.3 this is captured on every play, not cached from the first time the instance was animated), then adds the keyframe delta on top. Multiple relative animations stack additively. After a relative animation finishes, its delta stays on screen until the game sets the property or a newer absolute animation writes it.</p>
                 </div>
 
                 <h2>Sub-Property Animation</h2>
